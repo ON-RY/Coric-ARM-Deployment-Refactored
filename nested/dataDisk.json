@@ -1,0 +1,69 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+
+  "parameters": {
+    "globals": {
+      "metadata": {
+        "Description": "Global complex object passed to nested templates"
+      },
+      "type": "object"
+    },
+
+    "vmName": {
+      "metadata": {
+        "Description": "The VM's name as shown in the portal - NOT the server's BIOS/hostname"
+      },
+      "type": "string"
+    },
+
+    "machineSettings": {
+      "metadata": {
+        "Description": "Machine settings object"
+      },
+      "type": "object"
+    }
+  },
+
+  "variables": {
+  },
+
+  "resources": [
+    {
+      "apiVersion": "[parameters('globals').apiVersion.virtualMachine]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[parameters('vmName')]",
+      "location": "[resourceGroup().location]",
+        "identity": {
+            "type": "SystemAssigned"
+        },
+      "properties": {
+        "storageProfile": {
+          "dataDisks": "[parameters('machineSettings').dataDisks]"
+        }
+      }
+    },
+
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('vmName'), '/DiskInitialize')]",
+      "apiVersion": "[parameters('globals').apiVersion.extension]",
+      "condition": "[equals(parameters('globals').vmRebuild, 'false')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[parameters('vmName')]"
+      ],
+      "properties": {
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.9",
+        "publisher": "Microsoft.Compute",
+        "settings": {
+          "fileUris": [
+            "[parameters('globals').customScript.diskInitialize.scriptURL]"
+          ],
+          "commandToExecute": "[parameters('globals').customScript.diskInitialize.commandToExecute]"
+        }
+      }
+    }
+  ]
+}

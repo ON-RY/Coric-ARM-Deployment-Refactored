@@ -1,0 +1,969 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "prefix": {
+            "type": "string",
+            "defaultValue": "cor",
+            "metadata": {
+                "description": "Characters used for the prefix of each Azure object."
+            }
+        },
+        "clientID": {
+            "metadata": {
+                "description": "Unique ClientID for the system."
+            },
+            "type": "int"
+        },
+        "vnetV2addressSpace": {
+            "type": "string",
+            "metadata": {
+                "description": "VNET v2 Address space for the specific client, e.g., '10.11.16.0/21' ."
+            }
+        },
+        "adminVnetVersion": {
+            "type": "string",
+            "defaultValue": "Old",
+            "allowedValues": [
+                "Old",
+                "New"
+            ],
+            "metadata": {
+                "description": "Defunct - left in for backwards compatibility."
+            }
+        },
+        "nicNamingVersion": {
+            "type": "int",
+            "defaultValue": 2,
+            "allowedValues": [
+                1,
+                2
+            ],
+            "metadata": {
+                "description": "BNP and Candriam's NICs were built with a different naming convention--use '1' for those environments only."
+            }
+        },
+        "vmRebuild": {
+            "type": "string",
+            "defaultValue": "false",
+            "metadata": {
+                "description": "Set to true if VMs are being rebuilt and not created for the first time."
+            }
+        },
+        "storageAccountType": {
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_GRS",
+                "Standard_RAGRS",
+                "Premium_LRS"
+            ],
+            "defaultValue": "Standard_LRS",
+            "metadata": {
+                "Description": "The type of the Storage Account created"
+            },
+            "type": "string"
+        },
+        "windowsOSVersion": {
+            "type": "string",
+            "defaultValue": "2012-R2-Datacenter",
+            "allowedValues": [
+                "2019-Datacenter",
+                "Windows-Server-Technical-Preview",
+                "2022-Datacenter"
+            ],
+            "metadata": {
+                "description": "The Windows version for the VM. This will pick a fully patched image of this given Windows version."
+            }
+        },
+        "implementationPhase": {
+            "type": "int",
+            "defaultValue": 1,
+            "allowedValues": [
+                1,
+                2,
+                3,
+                4
+            ],
+            "metadata": {
+                "description": "The implementation build phase. 1 = Network infrastructure, admin VMs, and AD domain setup; 2 = Full Network infrastructure (run after Checkpoint);  3 = Environment supplied in 'environmentName (Dev/UAT/Prod);  4 = Check Point"
+            }
+        },
+        "asrBuild": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "If this is a DR/ASR build, pass the naming suffix (such as '-asr') to add to resource naming scheme."
+            }
+        },
+        "domainAdminUsername": {
+            "type": "string",
+            "defaultValue": "DomainAdmin",
+            "metadata": {
+                "description": "Domain admin username"
+            }
+        },
+        "domainAdminPassword": {
+            "defaultValue": "",
+            "type": "securestring",
+            "metadata": {
+                "description": "Domain admin password"
+            }
+        },
+        "localAdminUsername": {
+            "type": "string",
+            "defaultValue": "LocalAdmin",
+            "metadata": {
+                "description": "Local admin username"
+            }
+        },
+        "localAdminPassword": {
+            "defaultValue": "",
+            "type": "securestring",
+            "metadata": {
+                "description": "Local admin password"
+            }
+        },
+        "environmentName": {
+            "metadata": {
+                "Description": "Name of the environment being built. Will usually be: 'Admin', 'Development', 'UAT', or 'Production'."
+            },
+            "defaultValue": "Admin",
+            "type": "string"
+        },
+        "environmentAcronym": {
+            "metadata": {
+                "Description": "Acronym for the environment being built. Will usually be: 'D','U', or 'P'."
+            },
+            "defaultValue": "P",
+            "type": "string"
+        },
+        "environmentShortName": {
+            "metadata": {
+                "Description": "Short name of the environment being built. Does not need to be set unless this is an 'Extra' env."
+            },
+            "defaultValue": "",
+            "type": "string"
+        },
+        "clientAcronym": {
+            "metadata": {
+                "Description": "Client acronym for naming C1 public IP hostnames with. Must be populated. Also used to create a simcorpcloud.com child domain."
+            },
+            "defaultValue": "",
+            "type": "string"
+        },
+        "extraEnv1Name": {
+            "metadata": {
+                "Description": "Name of an extra environment to be built, will also trigger extra subnet deployment."
+            },
+            "defaultValue": "",
+            "type": "string"
+        },
+        "extraEnv1ShortName": {
+            "metadata": {
+                "Description": "Short name of an extra environment to be built, if 'extraEnv1Name' is also provided."
+            },
+            "defaultValue": "",
+            "type": "string"
+        },
+        "extraEnv2Name": {
+            "metadata": {
+                "Description": "Name of a second extra environment to be built, will also trigger extra subnet deployment."
+            },
+            "defaultValue": "",
+            "type": "string"
+        },
+        "extraEnv2ShortName": {
+            "metadata": {
+                "Description": "Short name of a second extra environment to be built, if 'extraEnv2Name' is also provided."
+            },
+            "defaultValue": "",
+            "type": "string"
+        },
+        "publicVpnIps": {
+            "metadata": {
+                "Description": "If true, create public VPN IPs not be attached to any VPNs - used only in the VPN."
+            },
+            "defaultValue": "false",
+            "type": "string"
+        },
+        "sqlSKU": {
+            "type": "string",
+            "allowedValues": [
+                "None",
+                "Express",
+                "Standard",
+                "Developer",
+                "Enterprise"
+            ],
+            "defaultValue": "Developer",
+            "metadata": {
+                "Description": "Defines the SQL SKU offer image from which the SQL Servers are to be built. None builds from the standard Windows image instead."
+            }
+        },
+        "sqlVersion": {
+            "type": "string",
+            "allowedValues": [
+                "SQL2017",
+                "SQL2019"
+            ],
+            "defaultValue": "SQL2019",
+            "metadata": {
+                "Description": "Version of SQL Server Enterprise to use.  Use following PowerShell cmdlet to see available options for the deployment region: Get-AzureRmVMImageOffer -PublisherName 'MicrosoftSQLServer"
+            }
+        },
+        "sqlVMSize": {
+            "type": "string",
+            "allowedValues": [
+                "Standard_B2ms",
+                "Standard_DS11_v2",
+                "Standard_E8s_v3"
+            ],
+            "defaultValue": "Standard_B2ms",
+            "metadata": {
+                "Description": "VM size for SQL Server."
+            }
+        },
+        "sqlBYOL": {
+            "type": "string",
+            "allowedValues": [
+                "",
+                "-BYOL"
+            ],
+            "defaultValue": "",
+            "metadata": {
+                "Description": "Internal-use BYOL or client-licensed instance of SQL"
+            }
+        },
+        "droneCount": {
+            "type": "int",
+            "minValue": 1,
+            "defaultValue": 1,
+            "metadata": {
+                "Description": "The number of Drones to build for this environment"
+            }
+        },
+        "desktopCount": {
+            "type": "int",
+            "minValue": 0,
+            "defaultValue": 1,
+            "metadata": {
+                "Description": "The number of Desktops to build for this environment"
+            }
+        },
+        "dmzServerCount": {
+            "type": "int",
+            "minValue": 0,
+            "defaultValue": 0,
+            "metadata": {
+                "Description": "The number of public-facing dmz servers to build for this environment."
+            }
+        },
+        "dmzServerSubnet": {
+            "type": "string",
+            "allowedValues": [
+                "web",
+                "dmz"
+            ],
+            "defaultValue": "web",
+            "metadata": {
+                "Description": "The network subnet to install the 'dmz' server(s) (usually just the C1 server) into; 'web' or 'dmz'"
+            }
+        },
+        "webReporter": {
+            "type": "string",
+            "allowedValues": [
+                "No",
+                "Yes"
+            ],
+            "defaultValue": "No",
+            "metadata": {
+                "Description": "Whether or not Web Reporter is part of the deployment"
+            }
+        },
+        "webReporterSubnet": {
+            "type": "string",
+            "allowedValues": [
+                "web",
+                "dmz"
+            ],
+            "defaultValue": "web",
+            "metadata": {
+                "Description": "The network subnet to install the 'webReporter' server into; 'web' or 'dmz'"
+            }
+        },
+        "pushPullCount": {
+            "type": "int",
+            "minValue": 1,
+            "defaultValue": 1,
+            "metadata": {
+                "Description": "The number of PushPull servers to build for this environment"
+            }
+        },
+        "webCount": {
+            "type": "int",
+            "minValue": 1,
+            "defaultValue": 1,
+            "metadata": {
+                "Description": "The number of Web Reporter servers to build for this environment"
+            }
+        },
+        "windowsVMSize": {
+            "type": "string",
+            "allowedValues": [
+                "Standard_B2s",
+                "Standard_B2ms",
+                "Standard_E8s_v3",
+                "Standard_DS11_v2"
+            ],
+            "defaultValue": "Standard_B2s",
+            "metadata": {
+                "Description": "VM size for Windows Servers."
+            }
+        },
+        "keyVaultName": {
+            "defaultValue": "",
+            "type": "string",
+            "metadata": {
+                "description": "Name of Key Vault which contains the encryption certificate"
+            }
+        },
+        "keyVaultResourceGroup": {
+            "defaultValue": "",
+            "type": "string",
+            "metadata": {
+                "description": "Resource Group of Key Vault which contains the encryption certificate"
+            }
+        },
+        "keyVaultCertificateURL": {
+            "defaultValue": "",
+            "type": "string",
+            "metadata": {
+                "description": "Url of the aadApp access certificate in the Key Vault.  E.g: https://mytestvault.vault.azure.net:443/secrets/myaadappcertificate/<version>"
+            }
+        },
+        "keyVaultKEKURL": {
+            "defaultValue": "",
+            "type": "string",
+            "metadata": {
+                "description": "Url of the BitLocker Key Encryption Key in the Key Vault.  E.g: https://mytestvault.vault.azure.net/keys/mykek/<version>"
+            }
+        },
+        "aadClientID": {
+            "defaultValue": "",
+            "type": "string",
+            "metadata": {
+                "description": "Client ID of AAD app which has permissions to KeyVault"
+            }
+        },
+        "aadClientCertThumbprint": {
+            "defaultValue": "",
+            "type": "string",
+            "metadata": {
+                "description": "Thumbprint of the certificate associated with the AAD app which has permissions to KeyVault"
+            }
+        },
+        "sqlKeyVaultName": {
+            "defaultValue": "",
+            "type": "string",
+            "metadata": {
+                "description": "Name of the SQL Key Vault containing the Asymmetric Key to be used by SQL TDE"
+            }
+        },
+        "sqlServicePrincipalName": {
+            "defaultValue": "",
+            "type": "string",
+            "metadata": {
+                "description": "ApplicationId of the aadApp used to authenticate against the SQL Key Vault"
+            }
+        },
+        "sqlServicePrincipalSecret": {
+            "defaultValue": "",
+            "type": "securestring",
+            "metadata": {
+                "description": "aadApp secret used to authenticate against the SQL Key Vault"
+            }
+        },
+        "sqlCredentialName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the SQL user to be created for use with TDE EKM on Key Vault"
+            }
+        },
+        "sicKey": {
+            "defaultValue": "",
+            "type": "securestring",
+            "minLength": 8,
+            "metadata": {
+                "description": "One time key for Check Point Secure Internal Communication (certificate to connect Gateway to Management Server)"
+            }
+        },
+        "sequenceVersion": {
+            "type": "int"
+        },
+        "checkPointOffer": {
+            "type": "string",
+            "allowedValues": [
+                "check-point-cg-r8020-blink-v2",
+                "check-point-cg-r8030",
+                "check-point-cg-r8040"
+            ],
+            "defaultValue": "check-point-cg-r8020-blink-v2",
+            "metadata": {
+                "description": "The version of Check Point firewall/vpn gateway to install; r77.10 or r80.20"
+            }
+        },
+        "insightVMOffer": {
+            "type": "string",
+            "allowedValues": [
+                "nexpose-scan-engine"
+            ],
+            "defaultValue": "nexpose-scan-engine",
+            "metadata": {
+                "description": "The Azure marketplace image to use when deploying Rapid7 InsightVM"
+            }
+        },
+        "insightVMSize": {
+            "type": "string",
+            "allowedValues": [
+                "Standard_B2s"
+            ],
+            "defaultValue": "Standard_B2s",
+            "metadata": {
+                "Description": "VM size for Insight VM."
+            }
+        },
+        "mfaVMOffer": {
+            "type": "string",
+            "allowedValues": [
+                "",
+                "azure-ad-connect-2019"
+            ],
+            "defaultValue": "",
+            "metadata": {
+                "description": "The Azure marketplace image to use when deploying the AAD Connect server. If blank, no AAD Connect server will be deployed."
+            }
+        },
+        "mfaVMSize": {
+            "type": "string",
+            "allowedValues": [
+                "Standard_B2s"
+            ],
+            "defaultValue": "Standard_B2s"
+        },
+        "dnsParentZone": {
+            "type": "string",
+            "allowedValues": [
+                "",
+                "simcorpcloud.com",
+                "simcorpext.net",
+                "opus-nebula.com"
+            ],
+            "defaultValue": "opus-nebula.com",
+            "metadata": {
+                "description": "The parent DNS zone name; e.g.: opus-nebula.com"
+            }
+        },
+        "dnsChildZone": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "The child DNS zone name; e.g.: troweprice."
+            }
+        },
+        "certificatesKeyVaultName": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Name of the Key Vault store for certificates, if any."
+            }
+        }
+    },
+    "variables": {
+        "adminVnetID": "[resourceId('Microsoft.Network/virtualNetworks', concat('vn', variables('baseName'), '-v2'))]",
+        "baseName": "[concat(parameters('prefix'), variables('paddedClientID'))]",
+        "childDnsZoneName": "[if(empty(parameters('dnsChildZone')), concat(parameters('clientAcronym'), '.', parameters('dnsParentZone')),  concat(parameters('dnsChildZone'), '.', parameters('dnsParentZone')))]",
+        "domainSuffix": "Hosted",
+        "environmentShortNameAdmin": "admin",
+        "environmentShortNameDevelopment": "dev",
+        "environmentShortNameProduction": "prod",
+        "environmentShortNameUAT": "uat",
+        "environmentShortNameWeb": "web",
+        "extraEnv1ShortName": "[toLower(parameters('extraEnv1ShortName'))]",
+        "extraEnv2ShortName": "[toLower(parameters('extraEnv2ShortName'))]",
+        "networkEnv1Exists": "[if(empty(parameters('extraEnv1Name')), 0, 1)]",
+        "networkEnv2Exists": "[if(empty(parameters('extraEnv2Name')), 0, 1)]",
+        "networkExtraEnvCount": "[add(variables('networkEnv1Exists'), variables('networkEnv2Exists'))]",
+        "globals": {
+            "adminResourceGroupName": "[variables('baseName')]",
+            "apiVersion": {
+                "availabilitySets": "2018-06-01",
+                "deployment": "2018-05-01",
+                "dnsZone": "2018-05-01",
+                "dsc": "2019-07-01",
+                "extension": "2019-07-01",
+                "loadBalancer": "2018-02-01",
+                "network": "2018-02-01",
+                "networkpeerings": "2018-02-01",
+                "nic": "2018-02-01",
+                "nsg": "2015-06-15",
+                "pip": "2018-07-01",
+                "proximityPlacementGroups": "2018-04-01",
+                "routeTables": "2018-02-01",
+                "storage": "2023-01-01",
+                "subnets": "2018-12-01",
+                "virtualMachine": "2018-06-01"
+            },
+            "asrBuild": "[parameters('asrBuild')]",
+            "baseName": "[variables('baseName')]",
+            "certificatesKeyVaultName": "[parameters('certificatesKeyVaultName')]",
+            "checkPointOffer": "[parameters('checkPointOffer')]",
+            "checkPointTemplateLink": "[uri(deployment().properties.templateLink.uri, 'nested/checkPoint.json')]",
+            "childDnsZoneName": "[variables('childDnsZoneName')]",
+            "clientID": "[parameters('clientID')]",
+            "clientAcronym": "[parameters('clientAcronym')]",
+            "customScript": {
+                "diskInitialize": {
+                    "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file DiskInitialize.ps1",
+                    "scriptURL": "[uri(deployment().properties.templateLink.uri, 'customScript/DiskInitialize.ps1')]"
+                }
+            },
+            "dataDiskSizes": {
+                "dmz": 1023,
+                "dc": 1023,
+                "ftp": 1023,
+                "sql": 1023,
+                "warehouse": 1023,
+                "rdg": 1023,
+                "mfa": 1023
+            },
+            "diskEncryption": {
+                "aadClientID": "[parameters('aadClientID')]",
+                "aadClientCertThumbprint": "[parameters('aadClientCertThumbprint')]",
+                "keyVaultKEKURL": "[parameters('keyVaultKEKURL')]",
+                "keyVaultName": "[parameters('keyVaultName')]",
+                "keyVaultResourceGroup": "[parameters('keyVaultResourceGroup')]",
+                "keyVaultCertificateURL": "[parameters('keyVaultCertificateURL')]",
+                "sequenceVersion": "[parameters('sequenceVersion')]",
+                "vmEncryptionTemplateLink": "[uri(deployment().properties.templateLink.uri, 'nested/diskEncryption.json')]"
+            },
+            "storageAccountType": "[parameters('storageAccountType')]",
+            "keyVaultExtForWindowsSettings": {
+                "pollingIntervalInS": "3600",
+                "certificateStoreName": "MY",
+                "linkOnRenewal": false,
+                "certificateStoreLocation": "LocalMachine",
+                "requireInitialSync": true,
+                "observedCertificates": [
+                    "[concat('https://',parameters('certificatesKeyVaultName'),'.vault.azure.net/secrets/', replace(variables('childDnsZoneName'), '.', 'DOT'))]"
+                ]
+            },
+            "keyVaultCertificateUri": "[concat(parameters('keyVaultName'))]",
+            "dmzServerSubnet": "[parameters('dmzServerSubnet')]",
+            "domainAdminUsername": "[parameters('domainAdminUsername')]",
+            "domainName": "[concat(variables('baseName'), '.', variables('domainSuffix'))]",
+            "domainNameLDAP": "[concat('DC=', variables('baseName'), '; DC=', variables('domainSuffix'))]",
+            "dsc": {
+                "adConfiguration": {
+                    "function": "CreateADPDC.ps1\\CreateADPDC",
+                    "url": "[uri(deployment().properties.templateLink.uri, 'DSC/CreateADPDC.ps1.zip')]"
+                },
+                "diskInitialize": {
+                    "function": "DiskInitialize.ps1\\DiskInitialize",
+                    "url": "[uri(deployment().properties.templateLink.uri, 'DSC/DiskInitialize.ps1.zip')]"
+                }
+            },
+            "environment": {
+                "name": "[parameters('environmentName')]",
+                "shortname": "[if(empty(parameters('environmentShortName')), variables(concat('environmentShortName', parameters('environmentName'))), parameters('environmentShortName'))]",
+                "acronym": "[parameters('environmentAcronym')]",
+                "droneCount": "[parameters('droneCount')]",
+                "desktopCount": "[parameters('desktopCount')]",
+                "dmzServerCount": "[parameters('dmzServerCount')]",
+                "pushPullCount": "[parameters('pushPullCount')]",
+                "webCount": "[parameters('webCount')]"
+            },
+            "insightVMOffer": "[parameters('insightVMOffer')]",
+            "insightVMSize": "[parameters('insightVMSize')]",
+            "insightVMTemplateLink": "[uri(deployment().properties.templateLink.uri, 'nested/insightVM.json')]",
+            "localAdminUsername": "[parameters('localAdminUsername')]",
+            "mfaVMOffer": "[parameters('mfaVMOffer')]",
+            "mfaVMSize": "[parameters('mfaVMSize')]",
+            "networkSettings": {
+                "name": "[concat('vn', variables('baseName'))]",
+                "adminVnetID": "[variables('adminVnetID')]",
+                "vnetV2name": "[concat('vn', variables('baseName'), '-v2')]",
+                "vnetV2addressSpace": "[parameters('vnetV2addressSpace')]",
+                "addressSpace": "10.200.0.0/20",
+                "azureDNS": "168.63.129.16",
+                "azureGatewayInternalIPAddress": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',variables('octetsArr')[2],'.65')]",
+                "dc01IPAddress": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',variables('octetsArr')[2],'.196')]",
+                "dc02IPAddress": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',variables('octetsArr')[2],'.197')]",
+                "mfaIPAddress": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',variables('octetsArr')[2],'.198')]",
+                "adminSecurityID": "[concat(variables('adminVnetID'), '/subnets/', 'sn', variables('vnetV2name'), '-admin-security')]",
+                "insightVMIPAddress": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),4),'.132')]",
+                "extraEnv1ShortName": "[variables('extraEnv1ShortName')]",
+                "extraEnv2ShortName": "[variables('extraEnv2ShortName')]",
+                "gatewayExternalSubnetID": "[concat(variables('adminVnetID'), '/subnets/', 'sn', variables('vnetV2name'), '-admin-external')]",
+                "gatewayExternalIPAddress": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',variables('octetsArr')[2],'.4')]",
+                "gatewayInternalSubnetID": "[concat(variables('adminVnetID'), '/subnets/','sn', variables('vnetV2name'), '-admin-internalgateway')]",
+                "gatewayInternalIPAddress": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',variables('octetsArr')[2],'.68')]",
+                "domainSubnetID": "[concat(variables('adminVnetID'), '/subnets/', 'sn', variables('vnetV2name'), '-admin-domain')]",
+                "dmzSubnetID": "[concat(variables('adminVnetID'), '/subnets/', 'sn', variables('vnetV2name'), '-admin-dmz')]",
+                "rdgatewayIPAddress": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',variables('octetsArr')[2],'.132')]",
+                "ftpIPAddress": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',variables('octetsArr')[2],'.133')]",
+                "mgmtNetworkSubscriptionID": "7f656f31-ece7-4425-8ef7-e597e1b2eac7",
+                "mgmtNetworkResourceGroup": "rgMgmtNetwork",
+                "mgmtNetworkID": "/subscriptions/7f656f31-ece7-4425-8ef7-e597e1b2eac7/resourceGroups/rgMgmtNetwork/providers/Microsoft.Network/virtualNetworks/vnMgmtNetwork",
+                "mgmtNetworkAddressSpace": "10.100.0.0/23",
+                "nicNamingVersion": "[parameters('nicNamingVersion')]",
+                "publicVpnIps": "[parameters('publicVpnIps')]",
+                "subnetadminexternal": {
+                    "id": 10,
+                    "name": "[concat('sn', variables('vnetV2name'), '-admin-external')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',variables('octetsArr')[2],'.0/26')]"
+                },
+                "subnetadmininternalGateway": {
+                    "id": 11,
+                    "name": "[concat('sn', variables('vnetV2name'), '-admin-internalgateway')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',variables('octetsArr')[2],'.64/26')]"
+                },
+                "subnetadmindmz": {
+                    "id": 12,
+                    "name": "[concat('sn', variables('vnetV2name'), '-admin-dmz')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',variables('octetsArr')[2],'.128/26')]"
+                },
+                "subnetadmindomain": {
+                    "id": 13,
+                    "name": "[concat('sn', variables('vnetV2name'), '-admin-domain')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',variables('octetsArr')[2],'.192/26')]"
+                },
+                "subnetadminsecurity": {
+                    "id": 14,
+                    "name": "[concat('sn', variables('vnetV2name'), '-admin-security')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),4),'.128/26')]"
+                },
+                "subnetproddesktop": {
+                    "id": 15,
+                    "name": "[concat('sn', variables('vnetV2name'), '-prod-desktop')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),1),'.0/26')]"
+                },
+                "subnetprodweb": {
+                    "id": 16,
+                    "name": "[concat('sn', variables('vnetV2name'), '-prod-web')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),1),'.64/26')]"
+                },
+                "subnetprodapplication": {
+                    "id": 17,
+                    "name": "[concat('sn', variables('vnetV2name'), '-prod-application')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),1),'.128/26')]"
+                },
+                "subnetproddatabase": {
+                    "id": 18,
+                    "name": "[concat('sn', variables('vnetV2name'), '-prod-database')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),1),'.192/26')]"
+                },
+                "subnetuatdesktop": {
+                    "id": 19,
+                    "name": "[concat('sn', variables('vnetV2name'), '-uat-desktop')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),2),'.0/26')]"
+                },
+                "subnetuatweb": {
+                    "id": 20,
+                    "name": "[concat('sn', variables('vnetV2name'), '-uat-web')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),2),'.64/26')]"
+                },
+                "subnetuatapplication": {
+                    "id": 21,
+                    "name": "[concat('sn', variables('vnetV2name'), '-uat-application')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),2),'.128/26')]"
+                },
+                "subnetuatdatabase": {
+                    "id": 22,
+                    "name": "[concat('sn', variables('vnetV2name'), '-uat-database')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),2),'.192/26')]"
+                },
+                "subnetdevdesktop": {
+                    "id": 23,
+                    "name": "[concat('sn', variables('vnetV2name'), '-dev-desktop')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),3),'.0/26')]"
+                },
+                "subnetdevweb": {
+                    "id": 24,
+                    "name": "[concat('sn', variables('vnetV2name'), '-dev-web')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),3),'.64/26')]"
+                },
+                "subnetdevapplication": {
+                    "id": 25,
+                    "name": "[concat('sn', variables('vnetV2name'), '-dev-application')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),3),'.128/26')]"
+                },
+                "subnetdevdatabase": {
+                    "id": 26,
+                    "name": "[concat('sn', variables('vnetV2name'), '-dev-database')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),3),'.192/26')]"
+                },
+                "subnetproddmz": {
+                    "id": 27,
+                    "name": "[concat('sn', variables('vnetV2name'), '-prod-dmz')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),4),'.0/26')]"
+                },
+                "subnetuatdmz": {
+                    "id": 28,
+                    "name": "[concat('sn', variables('vnetV2name'), '-uat-dmz')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),4),'.64/26')]"
+                },
+                "subnetdevdmz": {
+                    "id": 29,
+                    "name": "[concat('sn', variables('vnetV2name'), '-dev-dmz')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),4),'.192/26')]"
+                },
+                "subnetextraenv1desktop": {
+                    "id": 30,
+                    "name": "[concat('sn', variables('vnetV2name'), '-', variables('extraEnv1ShortName'), '-desktop')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),5),'.0/26')]"
+                },
+                "subnetextraenv1web": {
+                    "id": 31,
+                    "name": "[concat('sn', variables('vnetV2name'), '-', variables('extraEnv1ShortName'), '-web')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),5),'.64/26')]"
+                },
+                "subnetextraenv1application": {
+                    "id": 32,
+                    "name": "[concat('sn', variables('vnetV2name'), '-', variables('extraEnv1ShortName'), '-application')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),5),'.128/26')]"
+                },
+                "subnetextraenv1database": {
+                    "id": 33,
+                    "name": "[concat('sn', variables('vnetV2name'), '-', variables('extraEnv1ShortName'), '-database')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),5),'.192/26')]"
+                },
+                "subnetextraenv1dmz": {
+                    "id": 34,
+                    "name": "[concat('sn', variables('vnetV2name'), '-', variables('extraEnv1ShortName'), '-dmz')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),7),'.0/26')]"
+                },
+                "subnetextraenv2desktop": {
+                    "id": 30,
+                    "name": "[concat('sn', variables('vnetV2name'), '-', variables('extraEnv2ShortName'), '-desktop')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),6),'.0/26')]"
+                },
+                "subnetextraenv2web": {
+                    "id": 31,
+                    "name": "[concat('sn', variables('vnetV2name'), '-', variables('extraEnv2ShortName'), '-web')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),6),'.64/26')]"
+                },
+                "subnetextraenv2application": {
+                    "id": 32,
+                    "name": "[concat('sn', variables('vnetV2name'), '-', variables('extraEnv2ShortName'), '-application')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),6),'.128/26')]"
+                },
+                "subnetextraenv2database": {
+                    "id": 33,
+                    "name": "[concat('sn', variables('vnetV2name'), '-', variables('extraEnv2ShortName'), '-database')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),6),'.192/26')]"
+                },
+                "subnetextraenv2dmz": {
+                    "id": 34,
+                    "name": "[concat('sn', variables('vnetV2name'), '-', variables('extraEnv2ShortName'), '-dmz')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),7),'.64/26')]"
+                }
+            },
+            "networkTemplateLink": "[uri(deployment().properties.templateLink.uri, 'nested/network.json')]",
+            "networkVnetV2TemplateLink": "[if(equals(variables('networkExtraEnvCount'), 0), uri(deployment().properties.templateLink.uri, 'nested/networkNewVnet.json'),  uri(deployment().properties.templateLink.uri, concat('nested/networkNewVnetWithExtraEnv', variables('networkExtraEnvCount'), '.json')))]",
+            "networkVnetV2WithRoutesTemplateLink": "[if(equals(variables('networkExtraEnvCount'), 0), uri(deployment().properties.templateLink.uri, 'nested/networkNewVnetWithRoutes.json'), uri(deployment().properties.templateLink.uri, concat('nested/networkNewVnetWithRoutesWithExtraEnv', variables('networkExtraEnvCount'), '.json')))]",
+            "networkWithDNSTemplateLink": "[uri(deployment().properties.templateLink.uri, 'nested/networkWithDNS.json')]",
+            "ou": {
+                "serverRoles": "OU=Coric Computers;",
+                "sql": "OU=SQL;",
+                "drone": "OU=Drone;",
+                "domainControllers": "OU=Domain Controllers;",
+                "desktop": "OU=Desktop;",
+                "iis": "OU=IIS;",
+                "dmz": "OU=IIS;",
+                "rdg": "OU=RDG;OU=Admin;",
+                "ftp": "OU=FTP;OU=Admin;",
+                "pushPull": "OU=PushPull;",
+                "mfa": "OU=MFA;"
+            },
+            "prefix": "[parameters('prefix')]",
+            "sqlEncryption": {
+                "keyVaultURL": "[concat('https://', parameters('sqlKeyVaultName'), '.vault.azure.net/')]",
+                "servicePrincipalName": "[parameters('sqlServicePrincipalName')]",
+                "servicePrincipalSecret": "[parameters('sqlServicePrincipalSecret')]",
+                "sqlCredentialName": "[parameters('sqlCredentialName')]"
+            },
+            "sqlVM": "[variables(concat('sql',parameters('sqlSKU'),'VM'))]",
+            "sqlEncryptionTemplate": "[variables(concat('sql',parameters('sqlSKU'),'Encryption'))]",
+            "storageAccountAdmin": "[replace(concat('sa', variables('baseName'), 'admin'),'-','')]",
+            "storageAccountDiagnostics": "[replace(concat('sa', variables('baseName'), 'diagnostics'),'-','')]",
+            "storageAccountTemplateLink": "[uri(deployment().properties.templateLink.uri, 'nested/storageAccount.json')]",
+            "storageType": "Standard_RAGRS",
+            "templateLinkDataDisk": "[uri(deployment().properties.templateLink.uri, 'nested/dataDisk.json')]",
+            "templateLinkDataDiskNull": "[uri(deployment().properties.templateLink.uri, 'nested/dataDiskNull.json')]",
+            "templateLinkDiskEncryption": "[uri(deployment().properties.templateLink.uri, 'nested/diskEncryption.json')]",
+            "templateLinkDiskEncryptionNull": "[uri(deployment().properties.templateLink.uri, 'nested/diskEncryptionNull.json')]",
+            "templateLinkDomainJoin": "[uri(deployment().properties.templateLink.uri, 'nested/domainJoin.json')]",
+            "templateLinkDomainJoinNull": "[uri(deployment().properties.templateLink.uri, 'nested/domainJoinNull.json')]",
+            "templateLinkExtensions": "[uri(deployment().properties.templateLink.uri, 'nested/extensions.json')]",
+            "templateLinkPublicIP": "[uri(deployment().properties.templateLink.uri, 'nested/publicIP.json')]",
+            "templateLinkPublicIPNull": "[uri(deployment().properties.templateLink.uri, 'nested/publicIPNull.json')]",
+            "templateLinkPublicVpnIps": "[uri(deployment().properties.templateLink.uri, 'nested/publicVpnIps.json')]",
+            "templateLinkSQLKeyVault": "[variables('templateLinkSQLKeyVault')]",
+            "templateLinkSQLKeyVaultNull": "[variables('templateLinkSQLKeyVaultNull')]",
+            "templateLinkVirtualMachine": "[uri(deployment().properties.templateLink.uri, 'nested/virtualMachine.json')]",
+            "templateLinkVMNew": "[uri(deployment().properties.templateLink.uri, 'nested/vmNew.json')]",
+            "templateLinkVMRebuild": "[uri(deployment().properties.templateLink.uri, 'nested/vmRebuild.json')]",
+            "vhdContainerName": "vhds",
+            "vmRebuild": "[parameters('vmRebuild')]",
+            "webReporter": "[parameters('webReporter')]",
+            "webReporterSubnet": "[parameters('webReporterSubnet')]",
+            "windowsVM": {
+                "publisher": "MicrosoftWindowsServer",
+                "offer": "WindowsServer",
+                "sku": "[parameters('windowsOSVersion')]",
+                "version": "latest",
+                "size": "[parameters('windowsVMSize')]"
+            }
+        },
+        "octetsArr": "[split(parameters('vnetV2addressSpace'),'.')]",
+        "paddedClientID": "[padLeft(parameters('clientID'),4,'0')]",
+        "sharedResourcesTemplateURL": "[uri(deployment().properties.templateLink.uri, concat('nested/sharedResources', parameters('implementationPhase'), '.json'))]",
+        "SQL2019": "SQL2019-WS2019",
+        "sqlDeveloperEncryption": "[variables('templateLinkSQLKeyVault')]",
+        "sqlDeveloperVM": {
+            "publisher": "MicrosoftSQLServer",
+            "offer": "[variables('sqlOffer')]",
+            "sku": "SQLDEV",
+            "version": "latest",
+            "size": "[parameters('sqlVMSize')]"
+        },
+        "sqlEnterpriseEncryption": "[variables('templateLinkSQLKeyVault')]",
+        "sqlEnterpriseVM": {
+            "publisher": "MicrosoftSQLServer",
+            "offer": "[variables('sqlOffer')]",
+            "sku": "Enterprise",
+            "version": "latest",
+            "size": "[parameters('sqlVMSize')]"
+        },
+        "sqlOffer": "[concat(variables(parameters('sqlVersion')),parameters('sqlBYOL'))]",
+        "sqlStandardEncryption": "[variables('templateLinkSQLKeyVault')]",
+        "sqlStandardVM": {
+            "publisher": "MicrosoftSQLServer",
+            "offer": "[variables('sqlOffer')]",
+            "sku": "Standard",
+            "version": "latest",
+            "size": "[parameters('sqlVMSize')]"
+        },
+        "sqlExpressEncryption": "[variables('templateLinkSQLKeyVault')]",
+        "sqlExpressVM": {
+            "publisher": "MicrosoftSQLServer",
+            "offer": "[variables('sqlOffer')]",
+            "sku": "Express",
+            "version": "latest",
+            "size": "[parameters('sqlVMSize')]"
+        },
+        "sqlNoneEncryption": "[variables('templateLinkSQLKeyVaultNull')]",
+        "sqlNoneVM": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "[parameters('windowsOSVersion')]",
+            "version": "latest",
+            "size": "[parameters('sqlVMSize')]"
+        },
+        "templateLinkEnvironment": "[uri(deployment().properties.templateLink.uri, 'nested/environment.json')]",
+        "templateLinkSQLKeyVault": "[uri(deployment().properties.templateLink.uri, 'nested/sqlKeyVault.json')]",
+        "templateLinkSQLKeyVaultNull": "[uri(deployment().properties.templateLink.uri, 'nested/sqlKeyVaultNull.json')]",
+        "vnetV2name": "[concat('vn', variables('baseName'), '-v2')]"
+    },
+    "resources": [
+        {
+            "name": "[concat('sharedResourcesSetup', parameters('implementationPhase'))]",
+            "condition": "[or(equals(parameters('implementationPhase'), 1), equals(parameters('implementationPhase'), 4))]",
+            "resourceGroup": "[concat(resourcegroup().name)]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "[variables('globals').apiVersion.deployment]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('sharedResourcesTemplateURL')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "globals": {
+                        "value": "[variables('globals')]"
+                    },
+                    "domainAdminPassword": {
+                        "value": "[parameters('domainAdminPassword')]"
+                    },
+                    "localAdminPassword": {
+                        "value": "[parameters('localAdminPassword')]"
+                    },
+                    "sicKey": {
+                        "value": "[parameters('sicKey')]"
+                    },
+                    "asrSuffix": {
+                        "value": ""
+                    }
+                }
+            }
+        },
+        {
+            "name": "[concat('sharedResourcesSetup', parameters('implementationPhase'), '-asr')]",
+            "condition": "[and(or(equals(parameters('implementationPhase'), 1), equals(parameters('implementationPhase'), 4)), not(empty(parameters('asrBuild'))))]",
+            "resourceGroup": "[concat(resourcegroup().name, parameters('asrBuild'))]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "[variables('globals').apiVersion.deployment]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('sharedResourcesTemplateURL')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "globals": {
+                        "value": "[variables('globals')]"
+                    },
+                    "domainAdminPassword": {
+                        "value": "[parameters('domainAdminPassword')]"
+                    },
+                    "localAdminPassword": {
+                        "value": "[parameters('localAdminPassword')]"
+                    },
+                    "sicKey": {
+                        "value": "[parameters('sicKey')]"
+                    },
+                    "asrSuffix": {
+                        "value": "[parameters('asrBuild')]"
+                    }
+                }
+            }
+        },
+        {
+            "name": "[concat('environmentSetup', parameters('implementationPhase'))]",
+            "condition": "[equals(parameters('implementationPhase'), 3)]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "[variables('globals').apiVersion.deployment]",
+            "dependsOn": [
+                "[concat('sharedResourcesSetup', parameters('implementationPhase'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('templateLinkEnvironment')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "globals": {
+                        "value": "[variables('globals')]"
+                    },
+                    "domainAdminPassword": {
+                        "value": "[parameters('domainAdminPassword')]"
+                    },
+                    "localAdminPassword": {
+                        "value": "[parameters('localAdminPassword')]"
+                    }
+                }
+            }
+        }
+    ]
+}

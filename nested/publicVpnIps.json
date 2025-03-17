@@ -1,0 +1,226 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+
+    "parameters": {
+        "globals": {
+            "metadata": {
+                "Description": "Global complex object passed to nested templates"
+            },
+            "type": "object"
+        }
+    },
+
+    "variables": {
+        "pipVpnRdgName": "[concat('pip', parameters('globals').baseName, '-rdg01')]",
+        "pipVpnRdgDns": "[toLower(concat(variables('pipVpnRdgName'),'-vpn'))]",
+
+        "pipVpnFtpName": "[concat('pip', parameters('globals').baseName, '-ftp01')]",
+        "pipVpnFtpDns": "[toLower(variables('pipVpnFtpName'))]",
+
+        "pipDevSqlName": "[concat('pip', parameters('globals').baseName, '-d-sql01')]",
+        "pipDevSqlDns": "[toLower(variables('pipDevSqlName'))]",
+
+        "pipUatSqlName": "[concat('pip', parameters('globals').baseName, '-u-sql01')]",
+        "pipUatSqlDns": "[toLower(variables('pipUatSqlName'))]",
+
+        "pipPrdSqlName": "[concat('pip', parameters('globals').baseName, '-p-sql01')]",
+        "pipPrdSqlDns": "[toLower(variables('pipPrdSqlName'))]",
+
+        "pipDevIisName": "[concat('pip', parameters('globals').baseName, '-d-iis01')]",
+        "pipDevIisDns": "[toLower(variables('pipDevIisName'))]",
+
+        "pipUatIisName": "[concat('pip', parameters('globals').baseName, '-u-iis01')]",
+        "pipUatIisDns": "[toLower(variables('pipUatIisName'))]",
+
+        "pipPrdIisName": "[concat('pip', parameters('globals').baseName, '-p-iis01')]",
+        "pipPrdIisDns": "[toLower(variables('pipPrdIisName'))]"
+    },
+
+    "resources": [
+        {
+            "name": "[variables('pipVpnRdgDns')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "[parameters('globals').apiVersion.pip]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "dnsSettings": {
+                    "domainNameLabel": "[variables('pipVpnRdgName')]"
+                },
+                "idleTimeoutInMinutes": 30,
+                "publicIPAllocationMethod": "Static"
+            }
+        },
+        {
+            "name": "[concat(parameters('globals').childDnsZoneName, '/', variables('pipVpnRdgName'))]",
+            "type": "Microsoft.Network/dnsZones/A",
+            "apiVersion": "[parameters('globals').apiVersion.dnsZone]",
+            "properties": {
+                "targetResource": {
+                    "id": "[resourceId('Microsoft.Network/publicIPAddresses/', variables('pipVpnRdgDns'))]"
+                }
+            }
+        },
+        {
+            "name": "[variables('pipVpnFtpDns')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "[parameters('globals').apiVersion.pip]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "dnsSettings": {
+                    "domainNameLabel": "[variables('pipVpnFtpDns')]"
+                },
+                "idleTimeoutInMinutes": 30,
+                "publicIPAllocationMethod": "Static"
+            }
+        },
+        {
+            "name": "[concat(parameters('globals').childDnsZoneName, '/', variables('pipVpnFtpDns'))]",
+            "type": "Microsoft.Network/dnsZones/A",
+            "apiVersion": "[parameters('globals').apiVersion.dnsZone]",
+            "properties": {
+                "targetResource": {
+                    "id": "[resourceId('Microsoft.Network/publicIPAddresses/', variables('pipVpnFtpDns'))]"
+                }
+            }
+        },
+        {
+            "name": "[variables('pipDevSqlDns')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "[parameters('globals').apiVersion.pip]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "dnsSettings": {
+                    "domainNameLabel": "[variables('pipDevSqlDns')]"
+                },
+                "idleTimeoutInMinutes": 30,
+                "publicIPAllocationMethod": "Static"
+            }
+        },
+        {
+            "name": "[concat(parameters('globals').childDnsZoneName, '/', variables('pipDevSqlDns'))]",
+            "type": "Microsoft.Network/dnsZones/A",
+            "apiVersion": "[parameters('globals').apiVersion.dnsZone]",
+            "properties": {
+                "targetResource": {
+                    "id": "[resourceId('Microsoft.Network/publicIPAddresses/', variables('pipDevSqlDns'))]"
+                }
+            }
+        },
+        {
+            "name": "[variables('pipUatSqlDns')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "[parameters('globals').apiVersion.pip]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "dnsSettings": {
+                    "domainNameLabel": "[variables('pipUatSqlDns')]"
+                },
+                "idleTimeoutInMinutes": 30,
+                "publicIPAllocationMethod": "Static"
+            }
+        },
+        {
+            "name": "[concat(parameters('globals').childDnsZoneName, '/', variables('pipUatSqlDns'))]",
+            "type": "Microsoft.Network/dnsZones/A",
+            "apiVersion": "[parameters('globals').apiVersion.dnsZone]",
+            "properties": {
+                "targetResource": {
+                    "id": "[resourceId('Microsoft.Network/publicIPAddresses/', variables('pipUatSqlDns'))]"
+                }
+            }
+        },
+        {
+            "name": "[variables('pipPrdSqlDns')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "[parameters('globals').apiVersion.pip]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "dnsSettings": {
+                    "domainNameLabel": "[variables('pipPrdSqlDns')]"
+                },
+                "idleTimeoutInMinutes": 30,
+                "publicIPAllocationMethod": "Static"
+            }
+        },
+        {
+            "name": "[concat(parameters('globals').childDnsZoneName, '/', variables('pipPrdSqlDns'))]",
+            "type": "Microsoft.Network/dnsZones/A",
+            "apiVersion": "[parameters('globals').apiVersion.dnsZone]",
+            "properties": {
+                "targetResource": {
+                    "id": "[resourceId('Microsoft.Network/publicIPAddresses/', variables('pipPrdSqlDns'))]"
+                }
+            }
+        },
+        {
+            "name": "[variables('pipDevIisDns')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "[parameters('globals').apiVersion.pip]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "dnsSettings": {
+                    "domainNameLabel": "[variables('pipDevIisDns')]"
+                },
+                "idleTimeoutInMinutes": 30,
+                "publicIPAllocationMethod": "Static"
+            }
+        },
+        {
+            "name": "[concat(parameters('globals').childDnsZoneName, '/', variables('pipDevIisDns'))]",
+            "type": "Microsoft.Network/dnsZones/A",
+            "apiVersion": "[parameters('globals').apiVersion.dnsZone]",
+            "properties": {
+                "targetResource": {
+                    "id": "[resourceId('Microsoft.Network/publicIPAddresses/', variables('pipDevIisDns'))]"
+                }
+            }
+        },
+        {
+            "name": "[variables('pipUatIisDns')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "[parameters('globals').apiVersion.pip]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "dnsSettings": {
+                    "domainNameLabel": "[variables('pipUatIisDns')]"
+                },
+                "idleTimeoutInMinutes": 30,
+                "publicIPAllocationMethod": "Static"
+            }
+        },
+        {
+            "name": "[concat(parameters('globals').childDnsZoneName, '/', variables('pipUatIisDns'))]",
+            "type": "Microsoft.Network/dnsZones/A",
+            "apiVersion": "[parameters('globals').apiVersion.dnsZone]",
+            "properties": {
+                "targetResource": {
+                    "id": "[resourceId('Microsoft.Network/publicIPAddresses/', variables('pipUatIisDns'))]"
+                }
+            }
+        },
+        {
+            "name": "[variables('pipPrdIisDns')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "[parameters('globals').apiVersion.pip]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "dnsSettings": {
+                    "domainNameLabel": "[variables('pipPrdIisDns')]"
+                },
+                "idleTimeoutInMinutes": 30,
+                "publicIPAllocationMethod": "Static"
+            }
+        },
+        {
+            "name": "[concat(parameters('globals').childDnsZoneName, '/', variables('pipPrdIisDns'))]",
+            "type": "Microsoft.Network/dnsZones/A",
+            "apiVersion": "[parameters('globals').apiVersion.dnsZone]",
+            "properties": {
+                "targetResource": {
+                    "id": "[resourceId('Microsoft.Network/publicIPAddresses/', variables('pipPrdIisDns'))]"
+                }
+            }
+        }
+    ]
+}
