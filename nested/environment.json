@@ -48,7 +48,7 @@
             "plan": { "name": "none" },
             "publicIPTemplateLink": "[parameters('globals').templateLinkPublicIPNull]",
             "sqlKeyVaultTemplateLink": "[parameters('globals').templateLinkSQLKeyVaultNull]",
-            "storageAccount": "[variables('storageAccountName')]"
+            //"storageAccount": "[variables('storageAccountName')]"
         },
         "dmzBasename": "[concat(parameters('globals').baseName, '-', variables('acronym'), '-dmz')]",
         "dmzServer": {
@@ -61,8 +61,11 @@
                     "name": "[concat(variables('dmzBasename'), '01-datadisk-0')]",
                     "diskSizeGB": "[parameters('globals').dataDiskSizes.dmz]",
                     "lun": 0,
-                    "vhd": {
-                        "uri": "[concat('http://', variables('storageAccountName'), '.blob.core.windows.net/', parameters('globals').vhdContainerName, '/', variables('dmzBasename'), '01-Data0.vhd')]"
+                    //"vhd": {
+                    //    "uri": "[concat('http://', variables('storageAccountName'), '.blob.core.windows.net/', parameters('globals').vhdContainerName, '/', variables('dmzBasename'), '01-Data0.vhd')]"
+                    //},
+                    "managedDisk": {
+                        "storageAccountType": "[parameters('globals').storageAccountType]"
                     },
                     "createOption": "[if(equals(parameters('globals').vmRebuild, 'true'), 'Attach', 'Empty')]"
                 }
@@ -87,7 +90,7 @@
             "plan": { "name": "none" },
             "publicIPTemplateLink": "[parameters('globals').templateLinkPublicIPNull]",
             "sqlKeyVaultTemplateLink": "[parameters('globals').templateLinkSQLKeyVaultNull]",
-            "storageAccount": "[variables('storageAccountName')]"
+            //"storageAccount": "[variables('storageAccountName')]"
         },
         "drone": {
             "adminUsername": "[parameters('globals').localAdminUsername]",
@@ -114,7 +117,7 @@
             "plan": { "name": "none" },
             "publicIPTemplateLink": "[parameters('globals').templateLinkPublicIPNull]",
             "sqlKeyVaultTemplateLink": "[parameters('globals').templateLinkSQLKeyVaultNull]",
-            "storageAccount": "[variables('storageAccountName')]"
+            //"storageAccount": "[variables('storageAccountName')]"
         },
         "pushPull": {
             "adminUsername": "[parameters('globals').localAdminUsername]",
@@ -141,7 +144,7 @@
             "plan": { "name": "none" },
             "publicIPTemplateLink": "[parameters('globals').templateLinkPublicIPNull]",
             "sqlKeyVaultTemplateLink": "[parameters('globals').templateLinkSQLKeyVaultNull]",
-            "storageAccount": "[variables('storageAccountName')]"
+            //"storageAccount": "[variables('storageAccountName')]"
         },
         "sqlBasename": "[concat(parameters('globals').baseName, '-', variables('acronym'), '-sql')]",
         "sql": {
@@ -154,8 +157,11 @@
                     "name": "[concat(variables('sqlBasename'), '01-datadisk-0')]",
                     "diskSizeGB": "[parameters('globals').dataDiskSizes.sql]",
                     "lun": 0,
-                    "vhd": {
-                        "uri": "[concat('http://', variables('storageAccountNamePremium'), '.blob.core.windows.net/', parameters('globals').vhdContainerName, '/', variables('sqlBasename'), '01-Data0.vhd')]"
+                    //"vhd": {
+                    //    "uri": "[concat('http://', variables('storageAccountNamePremium'), '.blob.core.windows.net/', parameters('globals').vhdContainerName, '/', variables('sqlBasename'), '01-Data0.vhd')]"
+                    //},
+                    "managedDisk": {
+                        "storageAccountType": "[parameters('globals').storageAccountType]"
                     },
                     "createOption": "[if(equals(parameters('globals').vmRebuild, 'true'), 'Attach', 'Empty')]"
                 }
@@ -181,7 +187,7 @@
             "publicIPTemplateLink": "[parameters('globals').templateLinkPublicIPNull]",
             "sizeOfDataDiskInGB": 1023,
             "sqlKeyVaultTemplateLink": "[parameters('globals').sqlEncryptionTemplate]",
-            "storageAccount": "[variables('storageAccountNamePremium')]"
+            //"storageAccount": "[variables('storageAccountNamePremium')]"
         },
         "storageAccountName": "[concat('sa', parameters('globals').baseName, toLower(parameters('globals').environment.shortname))]",
         "storageAccountNamePremium": "[concat('sa', parameters('globals').baseName, toLower(parameters('globals').environment.shortname), 'prem')]",
@@ -199,8 +205,11 @@
                     "name": "[concat(variables('warehouseBasename'), '01-datadisk-0')]",
                     "diskSizeGB": "[parameters('globals').dataDiskSizes.warehouse]",
                     "lun": 0,
-                    "vhd": {
-                        "uri": "[concat('http://', variables('storageAccountName'), '.blob.core.windows.net/', parameters('globals').vhdContainerName, '/', variables('warehouseBasename'), '01-Data0.vhd')]"
+                    //"vhd": {
+                    //    "uri": "[concat('http://', variables('storageAccountName'), '.blob.core.windows.net/', parameters('globals').vhdContainerName, '/', variables('warehouseBasename'), '01-Data0.vhd')]"
+                    //},
+                    "managedDisk": {
+                        "storageAccountType": "[parameters('globals').storageAccountType]"
                     },
                     "createOption": "[if(equals(parameters('globals').vmRebuild, 'true'), 'Attach', 'Empty')]"
                 }
@@ -225,7 +234,7 @@
             "plan": { "name": "none" },
             "publicIPTemplateLink": "[parameters('globals').templateLinkPublicIPNull]",
             "sqlKeyVaultTemplateLink": "[parameters('globals').templateLinkSQLKeyVaultNull]",
-            "storageAccount": "[variables('storageAccountName')]"
+            //"storageAccount": "[variables('storageAccountName')]"
         },
         "web": {
             "adminUsername": "[parameters('globals').localAdminUsername]",
@@ -252,7 +261,7 @@
             "plan": { "name": "none" },
             "publicIPTemplateLink": "[parameters('globals').templateLinkPublicIPNull]",
             "sqlKeyVaultTemplateLink": "[parameters('globals').templateLinkSQLKeyVaultNull]",
-            "storageAccount": "[variables('storageAccountName')]"
+            //"storageAccount": "[variables('storageAccountName')]"
         }
     },
     "resources": [

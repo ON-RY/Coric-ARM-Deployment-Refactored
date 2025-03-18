@@ -178,8 +178,11 @@
                             },
                             "osDisk": {
                                 "name": "[concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0'))]",
-                                "vhd": {
-                                    "uri": "[concat('http://', parameters('machineSettings').storageAccount, '.blob.core.windows.net/', parameters('globals').vhdContainerName, '/', concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0')),'-OS.vhd')]"
+                                //"vhd": {
+                                //    "uri": "[concat('http://', parameters('machineSettings').storageAccount, '.blob.core.windows.net/', parameters('globals').vhdContainerName, '/', concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0')),'-OS.vhd')]"
+                                //},
+                                "managedDisk": {
+                                    "storageAccountType": "[parameters('globals').storageAccountType]"
                                 },
                                 "caching": "ReadWrite",
                                 "createOption": "FromImage"
@@ -250,8 +253,11 @@
                             "osDisk": {
                                 "name": "[concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0'))]",
                                 "osType": "Windows",
-                                "vhd": {
-                                    "uri": "[concat('http://', parameters('machineSettings').storageAccount, '.blob.core.windows.net/', parameters('globals').vhdContainerName, '/', concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0')),'-OS.vhd')]"
+                                //"vhd": {
+                                //    "uri": "[concat('http://', parameters('machineSettings').storageAccount, '.blob.core.windows.net/', parameters('globals').vhdContainerName, '/', concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0')),'-OS.vhd')]"
+                                //},
+                                "managedDisk": {
+                                    "storageAccountType": "[parameters('globals').storageAccountType]"
                                 },
                                 "caching": "ReadWrite",
                                 "createOption": "Attach"

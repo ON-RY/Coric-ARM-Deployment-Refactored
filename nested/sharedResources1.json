@@ -119,7 +119,7 @@
             "ouPath": "[concat(parameters('globals').ou.mfa, parameters('globals').ou.serverRoles)]",
             "publicIPTemplateLink": "[parameters('globals').templateLinkPublicIPNull]",
             "sizeOfDataDiskInGB": 1023,
-            "sqlKeyVaultTemplateLink": "[parameters('globals').templateLinkSQLKeyVaultNull]",
+            "sqlKeyVaultTemplateLink": "[parameters('globals').templateLinkSQLKeyVaultNull]"
             //"storageAccount": "[parameters('globals').storageAccountAdmin]"
         },
         "backupDomainController": {
