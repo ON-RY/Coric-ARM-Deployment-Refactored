@@ -132,7 +132,6 @@
                 "name": "Aligned"
             },
             "tags": {
-                "Department": "Managed Services",
                 "Environment": "Admin",
                 "Service": "InsightVM"
             }
