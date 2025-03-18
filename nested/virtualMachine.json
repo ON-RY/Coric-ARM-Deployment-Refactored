@@ -110,7 +110,10 @@
             "apiVersion": "[parameters('globals').apiVersion.availabilitySets]",
             "type": "Microsoft.Compute/availabilitySets",
             "name": "[variables('asName')]",
-            "location": "[resourceGroup().location]"
+            "location": "[resourceGroup().location]",
+			"sku": {
+				"name": "Aligned"
+			}
         },
         {
             "name": "[concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0'))]",
