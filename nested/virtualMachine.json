@@ -111,6 +111,10 @@
             "type": "Microsoft.Compute/availabilitySets",
             "name": "[variables('asName')]",
             "location": "[resourceGroup().location]",
+            "properties": {
+                "platformFaultDomainCount": 2,
+                "platformUpdateDomainCount": 5
+            },
 			"sku": {
 				"name": "Aligned"
 			}
