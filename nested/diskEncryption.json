@@ -19,7 +19,7 @@
 
   "variables": {
     "keyVaultURL": "[concat('https://', parameters('globals').diskEncryption.keyVaultName, '.vault.azure.net/')]",
-    "keyVaultResourceId": "[parameters('globals').diskEncryption.keyVaultId]"
+    "keyVaultResourceID": "[parameters('globals').diskEncryption.keyVaultResourceID]"
   },
 
   "resources": [
