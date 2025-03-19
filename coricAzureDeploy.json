@@ -498,11 +498,11 @@
             "apiVersion": {
                 "availabilitySets": "2023-07-01",
                 "deployment": "2023-07-01",
-                "dnsZone": "2023-07-01",
+                "dnsZone": "2024-11-01",
                 "dsc": "2023-07-01",
                 "extension": "2023-07-01",
                 "loadBalancer": "2023-07-01",
-                "network": "2023-07-01",
+                "network": "2022-11-01",
                 "networkpeerings": "2023-07-01",
                 "nic": "2023-07-01",
                 "nsg": "2023-07-01",
