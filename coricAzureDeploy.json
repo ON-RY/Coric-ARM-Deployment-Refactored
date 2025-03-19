@@ -68,7 +68,7 @@
             "defaultValue": "2012-R2-Datacenter",
             "allowedValues": [
                 "2019-Datacenter",
-                "Windows-Server-Technical-Preview",
+                //"Windows-Server-Technical-Preview",
                 "2022-Datacenter"
             ],
             "metadata": {
@@ -496,22 +496,22 @@
         "globals": {
             "adminResourceGroupName": "[variables('baseName')]",
             "apiVersion": {
-                "availabilitySets": "2018-06-01",
-                "deployment": "2018-05-01",
-                "dnsZone": "2018-05-01",
-                "dsc": "2019-07-01",
-                "extension": "2019-07-01",
-                "loadBalancer": "2018-02-01",
-                "network": "2018-02-01",
-                "networkpeerings": "2018-02-01",
-                "nic": "2018-02-01",
-                "nsg": "2015-06-15",
-                "pip": "2018-07-01",
-                "proximityPlacementGroups": "2018-04-01",
-                "routeTables": "2018-02-01",
+                "availabilitySets": "2023-07-01",
+                "deployment": "2023-07-01",
+                "dnsZone": "2023-07-01",
+                "dsc": "2023-07-01",
+                "extension": "2023-07-01",
+                "loadBalancer": "2023-07-01",
+                "network": "2023-07-01",
+                "networkpeerings": "2023-07-01",
+                "nic": "2023-07-01",
+                "nsg": "2023-07-01",
+                "pip": "2023-07-01",
+                "proximityPlacementGroups": "2023-07-01",
+                "routeTables": "2023-07-01",
                 "storage": "2023-01-01",
-                "subnets": "2018-12-01",
-                "virtualMachine": "2018-06-01"
+                "subnets": "2023-07-01",
+                "virtualMachine": "2023-07-01"
             },
             "asrBuild": "[parameters('asrBuild')]",
             "baseName": "[variables('baseName')]",

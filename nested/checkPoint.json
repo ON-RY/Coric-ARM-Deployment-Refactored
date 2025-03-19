@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "globals": {
@@ -612,8 +612,11 @@
                         "caching": "ReadWrite",
                         "createOption": "FromImage",
                         "name": "[concat('vm', variables('cpBasename'))]",
-                        "vhd": {
-                            "uri": "[concat('http://', parameters('globals').storageAccountAdmin, replace(parameters('asrSuffix'),'-',''),'.blob.core.windows.net/', parameters('globals').vhdContainerName, '/', variables('vmNamePortal'), '-OS.vhd')]"
+                        //"vhd": {
+                        //    "uri": "[concat('http://', parameters('globals').storageAccountAdmin, replace(parameters('asrSuffix'),'-',''),'.blob.core.windows.net/', parameters('globals').vhdContainerName, '/', variables('vmNamePortal'), '-OS.vhd')]"
+                       // }
+                        "managedDisk": {
+                            "storageAccountType": "Standard_LRS"  // or "Premium_LRS" for premium disks
                         }
                     }
                 }
