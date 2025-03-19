@@ -36,8 +36,10 @@
         "settings": {
           "KeyVaultURL": "[variables('keyVaultURL')]",
           "KeyEncryptionKeyURL": "[parameters('globals').diskEncryption.keyVaultKEKURL]",
-          "KeyVaultResourceId": "[variables('keyVaultResourceId')]",
-          "KekVaultResourceId": "[variables('keyVaultResourceId')]",
+          //"KeyVaultResourceId": "[variables('keyVaultResourceId')]",
+          //"KekVaultResourceId": "[variables('keyVaultResourceId')]",
+          "KeyVaultResourceId": "/subscriptions/c4c7597c-23a2-403c-9f09-40bf5dc3d309/resourceGroups/kvopn0003/providers/Microsoft.KeyVault/vaults/kvopn0003",
+          "KekVaultResourceId": "/subscriptions/c4c7597c-23a2-403c-9f09-40bf5dc3d309/resourceGroups/kvopn0003/providers/Microsoft.KeyVault/vaults/kvopn0003",
           "KeyEncryptionAlgorithm": "RSA-OAEP",
           "VolumeType": "All",
           "EncryptionOperation": "EnableEncryption",
