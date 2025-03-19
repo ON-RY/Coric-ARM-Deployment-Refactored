@@ -49,7 +49,7 @@
       //"enableHttpsTrafficOnly": true,
 
       "properties": {
-        "minimumTlsVersion": "1.2",
+        "minimumTlsVersion": "TLS1_2",
         "deleteRetentionPolicy": {
           "enabled": true,
           "days": 90
