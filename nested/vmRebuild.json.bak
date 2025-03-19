@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "globals": {
@@ -26,12 +26,6 @@
                 "Description": "Machine settings object"
             }
         },
-        "osProfile": {
-            "type": "object",
-            "metadata": {
-                "Description": "Machine settings object"
-            }
-        },
         "storageProfile": {
             "type": "object",
             "metadata": {
@@ -49,15 +43,9 @@
             "metadata": {
                 "Description": "Machine settings object"
             }
-        },
-        "plan": {
-            "type": "object",
-            "metadata": {
-                "Description": "Machine settings object"
-            }
         }
     },
-    "variables": { },
+    "variables": {},
     "resources": [
         {
             "name": "[parameters('vmName')]",
@@ -70,12 +58,10 @@
             "properties": {
                 "availabilitySet": "[parameters('availabilitySet')]",
                 "hardwareProfile": "[parameters('hardwareProfile')]",
-                "osProfile": "[parameters('osProfile')]",
                 "storageProfile": "[parameters('storageProfile')]",
                 "networkProfile": "[parameters('networkProfile')]",
                 "diagnosticsProfile": "[parameters('diagnosticsProfile')]"
-            },
-            "plan": "[if(equals(parameters('plan').name,'none'), json('null'), parameters('plan'))]"
+            }
         }
     ]
 }

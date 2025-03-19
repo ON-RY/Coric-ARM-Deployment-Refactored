@@ -29,11 +29,8 @@
         "storageProfile": {
 		  "dataDisks": [
 			{
-			  "diskSizeGB": "[parameters('globals').dataDiskSizes.dmz]",
-			  "lun": 0,
-			  "createOption": "[if(equals(parameters('globals').vmRebuild, 'true'), 'Attach', 'Empty')]",
 			  "managedDisk": {
-				"storageAccountType": "[parameters('globals').storageAccountType]"
+				  "storageAccountType": "[parameters('globals').storageAccountType]"
 			  }
 			}
 		  ]
