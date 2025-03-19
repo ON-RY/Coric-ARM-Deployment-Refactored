@@ -35,6 +35,7 @@
         "settings": {
           "KeyVaultURL": "[variables('keyVaultURL')]",
           "KeyEncryptionKeyURL": "[parameters('globals').diskEncryption.keyVaultKEKURL]",
+          "KeyVaultResourceId": "[variables('keyVaultResourceID')]",
           "KeyEncryptionAlgorithm": "RSA-OAEP",
           "VolumeType": "All",
           "EncryptionOperation": "EnableEncryption",

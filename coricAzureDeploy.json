@@ -507,7 +507,7 @@
                 "deployment": "2018-05-01",
                 "dnsZone": "2018-05-01",
                 "dsc": "2019-07-01",
-                "extension": "2019-07-01",
+                "extension": "2023-07-01",
                 "loadBalancer": "2018-02-01",
                 "network": "2018-02-01",
                 "networkpeerings": "2018-02-01",
