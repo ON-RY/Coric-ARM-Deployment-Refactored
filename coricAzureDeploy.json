@@ -348,6 +348,13 @@
                 "description": "Url of the BitLocker Key Encryption Key in the Key Vault.  E.g: https://mytestvault.vault.azure.net/keys/mykek/<version>"
             }
         },
+        "keyVaultId": {
+            "defaultValue": "",
+            "type": "string",
+            "metadata": {
+                "description": "ID of the Key Vault for Bit Locker.  E.g: /subscriptions/<SubscriptionID>/resourceGroups/<ResourseGroupName>/providers/Microsoft.KeyVault/vaults/<KeyVaultName>"
+            }
+        },
         "aadClientID": {
             "defaultValue": "",
             "type": "string",
@@ -540,6 +547,7 @@
                 "aadClientID": "[parameters('aadClientID')]",
                 "aadClientCertThumbprint": "[parameters('aadClientCertThumbprint')]",
                 "keyVaultKEKURL": "[parameters('keyVaultKEKURL')]",
+                "keyVaultId": "[parameters('keyVaultId')]",
                 "keyVaultName": "[parameters('keyVaultName')]",
                 "keyVaultResourceGroup": "[parameters('keyVaultResourceGroup')]",
                 "keyVaultCertificateURL": "[parameters('keyVaultCertificateURL')]",
