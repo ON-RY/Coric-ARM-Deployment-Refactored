@@ -19,7 +19,8 @@
 
   "variables": {
     "keyVaultURL": "[concat('https://', parameters('globals').diskEncryption.keyVaultName, '.vault.azure.net/')]",
-    "keyVaultResourceID": "[parameters('globals').diskEncryption.keyVaultResourceID]"
+    //"keyVaultResourceID": "[parameters('globals').diskEncryption.keyVaultResourceID]"
+    "keyVaultResourceId": "[resourceId(parameters('globals').diskEncryption.keyVaultResourceGroup, 'Microsoft.KeyVault/vaults', parameters('globals').diskEncryption.keyVaultName)]"
   },
 
   "resources": [
@@ -35,7 +36,8 @@
         "settings": {
           "KeyVaultURL": "[variables('keyVaultURL')]",
           "KeyEncryptionKeyURL": "[parameters('globals').diskEncryption.keyVaultKEKURL]",
-          "KeyVaultResourceId": "[variables('keyVaultResourceID')]",
+          "KeyVaultResourceId": "[variables('keyVaultResourceId')]",
+          "KekVaultResourceId": "[variables('keyVaultResourceId')]",
           "KeyEncryptionAlgorithm": "RSA-OAEP",
           "VolumeType": "All",
           "EncryptionOperation": "EnableEncryption",

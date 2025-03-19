@@ -547,7 +547,7 @@
                 "aadClientID": "[parameters('aadClientID')]",
                 "aadClientCertThumbprint": "[parameters('aadClientCertThumbprint')]",
                 "keyVaultKEKURL": "[parameters('keyVaultKEKURL')]",
-                "keyVaultResourceID": "[parameters('keyVaultResourceID')]",
+                //"keyVaultResourceID": "[parameters('keyVaultResourceID')]",
                 "keyVaultName": "[parameters('keyVaultName')]",
                 "keyVaultResourceGroup": "[parameters('keyVaultResourceGroup')]",
                 "keyVaultCertificateURL": "[parameters('keyVaultCertificateURL')]",
