@@ -27,13 +27,17 @@
         //  "dataDisks": "[parameters('machineSettings').dataDisks]"
         //}
         "storageProfile": {
-          "osDisk": {
-            "createOption": "FromImage",
-            "managedDisk": {
-              "storageAccountType": "Standard_LRS"  // or "Premium_LRS" for premium disks
-            }
-          }
-        }
+		  "dataDisks": [
+			{
+			  "diskSizeGB": "[parameters('globals').dataDiskSizes.dmz]",
+			  "lun": 0,
+			  "createOption": "[if(equals(parameters('globals').vmRebuild, 'true'), 'Attach', 'Empty')]",
+			  "managedDisk": {
+				"storageAccountType": "[parameters('globals').storageAccountType]"
+			  }
+			}
+		  ]
+		}
       }
     },
 
