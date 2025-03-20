@@ -527,13 +527,13 @@
             "checkPointTemplateLink": "[uri(deployment().properties.templateLink.uri, 'nested/checkPoint.json')]",
             "childDnsZoneName": "[variables('childDnsZoneName')]",
             "clientID": "[parameters('clientID')]",
-            "clientAcronym": "[parameters('clientAcronym')]"//,
+            "clientAcronym": "[parameters('clientAcronym')]",
             // "customScript": {
             //     "diskInitialize": {
             //         "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file DiskInitialize.ps1",
             //         "scriptURL": "[uri(deployment().properties.templateLink.uri, 'customScript/DiskInitialize.ps1')]"
             //     }
-            },
+            // },
             "dataDiskSizes": {
                 "dmz": 1023,
                 "dc": 1023,
