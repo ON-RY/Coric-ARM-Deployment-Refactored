@@ -443,7 +443,8 @@
             "type": "string",
             "allowedValues": [
                 "",
-                "azure-ad-connect-2019"
+                "azure-ad-connect-2019",
+                "MicrosoftWindowsServer:WindowsServer:2019-Datacenter-smalldisk:latest"
             ],
             "defaultValue": "",
             "metadata": {

@@ -29,9 +29,13 @@
       "properties": {
         "type": "SqlIaaSAgent",
         "publisher": "Microsoft.SqlServer.Management",
-        "typeHandlerVersion": "1.2",
+        "typeHandlerVersion": "2.0",
         "autoUpgradeMinorVersion": "true",
         "settings": {
+          "AutoPatchingSettings": {
+            "Enable": false
+          },
+          "TelemetryRegion": "[resourceGroup().location]",
           "KeyVaultCredentialSettings": {
             "Enable": true,
             "CredentialName": "[parameters('globals').sqlEncryption.sqlCredentialName]"
@@ -41,7 +45,8 @@
           "PrivateKeyVaultCredentialSettings": {
             "AzureKeyVaultUrl": "[parameters('globals').sqlEncryption.keyVaultURL]",
             "ServicePrincipalName": "[parameters('globals').sqlEncryption.servicePrincipalName]",
-            "ServicePrincipalSecret": "[parameters('globals').sqlEncryption.servicePrincipalSecret]"
+            "ServicePrincipalSecret": "[parameters('globals').sqlEncryption.servicePrincipalSecret]",
+            "ManagedIdentityClientId": ""  // Required for system-assigned identities
           }
         }
       },
