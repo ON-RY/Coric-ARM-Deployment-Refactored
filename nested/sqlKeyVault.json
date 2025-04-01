@@ -33,7 +33,10 @@
         "autoUpgradeMinorVersion": "true",
         "settings": {
           "AutoPatchingSettings": {
-            "Enable": false
+            "Enable": true,
+            "DayOfWeek": "Sunday",
+            "MaintenanceWindowStartTime": "02:00",
+            "MaintenanceWindowDuration": "60"
           },
           "TelemetryRegion": "[resourceGroup().location]",
           "KeyVaultCredentialSettings": {
