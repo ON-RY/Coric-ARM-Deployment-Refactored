@@ -29,8 +29,8 @@
       "properties": {
         "type": "SqlIaaSAgent",
         "publisher": "Microsoft.SqlServer.Management",
-        "typeHandlerVersion": "2.0",
-        "autoUpgradeMinorVersion": "true",
+        "typeHandlerVersion": "2.2",
+        "autoUpgradeMinorVersion": true,
         "settings": {
           "AutoPatchingSettings": {
             "Enable": true,
