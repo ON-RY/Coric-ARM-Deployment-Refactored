@@ -425,39 +425,39 @@
                 }
             }
         },
-        {
-            "name": "secondDCSetup",
-            "condition": "[empty(parameters('asrSuffix'))]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "[parameters('globals').apiVersion.deployment]",
-            "dependsOn": [
-                "UpdatingDNStoPrimaryADVM"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[parameters('globals').templateLinkVirtualMachine]",
-                    "contentVersion": "1.0.0.0"
-                },
-                "parameters": {
-                    "globals": {
-                        "value": "[parameters('globals')]"
-                    },
-                    "machineSettings": {
-                        "value": "[variables('backupDomainController')]"
-                    },
-                    "adminPassword": {
-                        "value": "[parameters('domainAdminPassword')]"
-                    },
-                    "copyIndexOffset": {
-                        "value": 2
-                    },
-                    "domainAdminPassword": {
-                        "value": "[parameters('domainAdminPassword')]"
-                    }
-                }
-            }
-        },
+        // {
+        //     "name": "secondDCSetup",
+        //     "condition": "[empty(parameters('asrSuffix'))]",
+        //     "type": "Microsoft.Resources/deployments",
+        //     "apiVersion": "[parameters('globals').apiVersion.deployment]",
+        //     "dependsOn": [
+        //         "UpdatingDNStoPrimaryADVM"
+        //     ],
+        //     "properties": {
+        //         "mode": "Incremental",
+        //         "templateLink": {
+        //             "uri": "[parameters('globals').templateLinkVirtualMachine]",
+        //             "contentVersion": "1.0.0.0"
+        //         },
+        //         "parameters": {
+        //             "globals": {
+        //                 "value": "[parameters('globals')]"
+        //             },
+        //             "machineSettings": {
+        //                 "value": "[variables('backupDomainController')]"
+        //             },
+        //             "adminPassword": {
+        //                 "value": "[parameters('domainAdminPassword')]"
+        //             },
+        //             "copyIndexOffset": {
+        //                 "value": 2
+        //             },
+        //             "domainAdminPassword": {
+        //                 "value": "[parameters('domainAdminPassword')]"
+        //             }
+        //         }
+        //     }
+        // },
         {
             "name": "rdsGatewaySetup",
             "condition": "[empty(parameters('asrSuffix'))]",
