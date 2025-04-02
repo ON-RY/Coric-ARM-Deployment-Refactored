@@ -74,3 +74,4 @@ catch {
     Write-Error "Error initializing disks: $_"
     exit 1  # Exit with failure code
 }
+
