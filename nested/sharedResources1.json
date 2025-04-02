@@ -122,49 +122,49 @@
             "sqlKeyVaultTemplateLink": "[parameters('globals').templateLinkSQLKeyVaultNull]"
             //"storageAccount": "[parameters('globals').storageAccountAdmin]"
         },
-        "backupDomainController": {
-            "adminUsername": "[parameters('globals').domainAdminUsername]",
-            "appID": "dc",
-            "basename": "[concat(parameters('globals').baseName, '-dc')]",
-            "dataDiskTemplateLink": "[parameters('globals').templateLinkDataDisk]",
-            "dataDisks": [
-                {
-                    "name": "[concat(variables('dcBasename'), '02-datadisk-0')]",
-                    "diskSizeGB": "[parameters('globals').dataDiskSizes.dc]",
-                    "lun": 0,
-                    //"vhd": {
-                    //    "uri": "[concat('http://', parameters('globals').storageAccountAdmin, '.blob.core.windows.net/', parameters('globals').vhdContainerName, '/', variables('dcBasename'), '02-Data0.vhd')]"
-                    //},
-                    "managedDisk": {
-                        "storageAccountType": "[parameters('globals').storageAccountType]"
-                    },
-                    "createOption": "[if(equals(parameters('globals').vmRebuild, 'true'), 'Attach', 'Empty')]"
-                }
-            ],
-            "domainJoinTemplateLink": "[parameters('globals').templateLinkDomainJoin]",
-            "encryptionTemplateLink": "[parameters('globals').templateLinkDiskEncryption]",
-            "imageReference": "[parameters('globals').windowsVM]",
-            "ipConfigurations": [
-                {
-                    "name": "ipconfig1",
-                    "properties": {
-                        "privateIPAllocationMethod": "Static",
-                        "privateIPAddress": "[parameters('globals').networkSettings.dc02IPAddress]",
-                        "subnet": {
-                            "id": "[variables('domainSubnetID')]"
-                        }
-                    }
-                }
-            ],
-            "dnsServers": [],
-            "numberOfVMs": 1,
-            "ouPath": "[parameters('globals').ou.domainControllers]",
-            "plan": { "name": "none" },
-            "publicIPTemplateLink": "[parameters('globals').templateLinkPublicIPNull]",
-            "sizeOfDataDiskInGB": 1023,
-            "sqlKeyVaultTemplateLink": "[parameters('globals').templateLinkSQLKeyVaultNull]"//,
-            //"storageAccount": "[parameters('globals').storageAccountAdmin]"
-        },
+        // "backupDomainController": {
+        //     "adminUsername": "[parameters('globals').domainAdminUsername]",
+        //     "appID": "dc",
+        //     "basename": "[concat(parameters('globals').baseName, '-dc')]",
+        //     "dataDiskTemplateLink": "[parameters('globals').templateLinkDataDisk]",
+        //     "dataDisks": [
+        //         {
+        //             "name": "[concat(variables('dcBasename'), '02-datadisk-0')]",
+        //             "diskSizeGB": "[parameters('globals').dataDiskSizes.dc]",
+        //             "lun": 0,
+        //             //"vhd": {
+        //             //    "uri": "[concat('http://', parameters('globals').storageAccountAdmin, '.blob.core.windows.net/', parameters('globals').vhdContainerName, '/', variables('dcBasename'), '02-Data0.vhd')]"
+        //             //},
+        //             "managedDisk": {
+        //                 "storageAccountType": "[parameters('globals').storageAccountType]"
+        //             },
+        //             "createOption": "[if(equals(parameters('globals').vmRebuild, 'true'), 'Attach', 'Empty')]"
+        //         }
+        //     ],
+        //     "domainJoinTemplateLink": "[parameters('globals').templateLinkDomainJoin]",
+        //     "encryptionTemplateLink": "[parameters('globals').templateLinkDiskEncryption]",
+        //     "imageReference": "[parameters('globals').windowsVM]",
+        //     "ipConfigurations": [
+        //         {
+        //             "name": "ipconfig1",
+        //             "properties": {
+        //                 "privateIPAllocationMethod": "Static",
+        //                 "privateIPAddress": "[parameters('globals').networkSettings.dc02IPAddress]",
+        //                 "subnet": {
+        //                     "id": "[variables('domainSubnetID')]"
+        //                 }
+        //             }
+        //         }
+        //     ],
+        //     "dnsServers": [],
+        //     "numberOfVMs": 1,
+        //     "ouPath": "[parameters('globals').ou.domainControllers]",
+        //     "plan": { "name": "none" },
+        //     "publicIPTemplateLink": "[parameters('globals').templateLinkPublicIPNull]",
+        //     "sizeOfDataDiskInGB": 1023,
+        //     "sqlKeyVaultTemplateLink": "[parameters('globals').templateLinkSQLKeyVaultNull]"//,
+        //     //"storageAccount": "[parameters('globals').storageAccountAdmin]"
+        // },
         "mfaBasename": "[concat(parameters('globals').baseName, '-mfa')]",
         "rdsBasename": "[concat(parameters('globals').baseName, '-rdg')]",
         "rdsGateway": {
