@@ -38,7 +38,7 @@
           "KeyEncryptionKeyURL": "[parameters('globals').diskEncryption.keyVaultKEKURL]",
           "KeyVaultResourceId": "[variables('keyVaultResourceId')]",
           "KekVaultResourceId": "[variables('keyVaultResourceId')]",
-          "KeyEncryptionAlgorithm": "RSA-OAEP",
+          "KeyEncryptionAlgorithm": "RSA-OAEP-256",//"RSA-OAEP"
           "VolumeType": "All",
           "EncryptionOperation": "EnableEncryption",
           "SequenceVersion": "[parameters('globals').diskEncryption.sequenceVersion]"
