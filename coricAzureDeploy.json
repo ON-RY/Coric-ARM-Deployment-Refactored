@@ -231,7 +231,7 @@
                 "",
                 "-BYOL"
             ],
-            "defaultValue": "",
+            "defaultValue": "true",
             "metadata": {
                 "Description": "Internal-use BYOL or client-licensed instance of SQL"
             }
