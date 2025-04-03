@@ -65,7 +65,7 @@
         },
         "windowsOSVersion": {
             "type": "string",
-            "defaultValue": "2012-R2-Datacenter",
+            "defaultValue": "2022-Datacenter",
             "allowedValues": [
                 "2019-Datacenter",
                 //"Windows-Server-Technical-Preview",
@@ -391,6 +391,7 @@
             }
         },
         "sqlCredentialName": {
+            "defaultValue": "Azure_EKM_TDE_cred",
             "type": "string",
             "metadata": {
                 "description": "Name of the SQL user to be created for use with TDE EKM on Key Vault"
