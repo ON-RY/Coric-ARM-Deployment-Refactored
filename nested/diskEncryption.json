@@ -41,7 +41,8 @@
           "KeyEncryptionAlgorithm": "RSA-OAEP",
           "VolumeType": "All",
           "EncryptionOperation": "EnableEncryption",
-          "SequenceVersion": "[parameters('globals').diskEncryption.sequenceVersion]"
+          "SequenceVersion": "[parameters('globals').diskEncryption.sequenceVersion]",
+          "ResizeOSDisk": "false"  // Required for Windows encryption
         },
         "protectedSettings": {
           "AADClientID": "[parameters('globals').diskEncryption.aadClientID]",
