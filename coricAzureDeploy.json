@@ -204,9 +204,10 @@
             "type": "string",
             "allowedValues": [
                 "SQL2017",
-                "SQL2019"
+                "SQL2019",
+                "SQL2022"
             ],
-            "defaultValue": "SQL2019",
+            "defaultValue": "SQL2022",
             "metadata": {
                 "Description": "Version of SQL Server Enterprise to use.  Use following PowerShell cmdlet to see available options for the deployment region: Get-AzureRmVMImageOffer -PublisherName 'MicrosoftSQLServer"
             }
