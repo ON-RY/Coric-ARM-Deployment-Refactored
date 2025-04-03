@@ -42,7 +42,9 @@
           "KeyVaultCredentialSettings": {
             "Enable": true,
             "CredentialName": "[parameters('globals').sqlEncryption.sqlCredentialName]"
-          }
+          },
+          "sqlManagement": "Full",
+          "licenseType": "DR"
         },
         "protectedSettings": {
           "PrivateKeyVaultCredentialSettings": {
