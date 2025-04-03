@@ -215,11 +215,12 @@
         "sqlVMSize": {
             "type": "string",
             "allowedValues": [
-                "Standard_B2ms",
+                "Standard_B2ms", //not supported for SQL2022
                 "Standard_DS11_v2",
-                "Standard_E8s_v3"
+                "Standard_E8s_v3",
+                "Standard_D2s_v5"
             ],
-            "defaultValue": "Standard_B2ms",
+            "defaultValue": "Standard_D2s_v5",
             "metadata": {
                 "Description": "VM size for SQL Server."
             }
