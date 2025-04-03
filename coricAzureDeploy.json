@@ -204,10 +204,9 @@
             "type": "string",
             "allowedValues": [
                 "SQL2017",
-                "SQL2019",
-                "SQL2022"
+                "SQL2019"
             ],
-            "defaultValue": "SQL2022",
+            "defaultValue": "SQL2019",
             "metadata": {
                 "Description": "Version of SQL Server Enterprise to use.  Use following PowerShell cmdlet to see available options for the deployment region: Get-AzureRmVMImageOffer -PublisherName 'MicrosoftSQLServer"
             }
@@ -215,13 +214,11 @@
         "sqlVMSize": {
             "type": "string",
             "allowedValues": [
-                "Standard_B2ms", //not supported for SQL2022
+                "Standard_B2ms",
                 "Standard_DS11_v2",
-                "Standard_E8s_v3",
-                "Standard_D2s_v5",
-                "Standard_D4s_v5"
+                "Standard_E8s_v3"
             ],
-            "defaultValue": "Standard_D4s_v5",
+            "defaultValue": "Standard_B2ms",
             "metadata": {
                 "Description": "VM size for SQL Server."
             }
@@ -551,7 +548,7 @@
             "diskEncryption": {
                 "aadClientID": "[parameters('aadClientID')]",
                 "aadClientCertThumbprint": "[parameters('aadClientCertThumbprint')]",
-                "keyVaultKEKURL": "",
+                "keyVaultKEKURL": "[parameters('keyVaultKEKURL')]",
                 //"keyVaultResourceID": "[parameters('keyVaultResourceID')]",
                 "keyVaultName": "[parameters('keyVaultName')]",
                 "keyVaultResourceGroup": "[parameters('keyVaultResourceGroup')]",
@@ -841,13 +838,12 @@
         "octetsArr": "[split(parameters('vnetV2addressSpace'),'.')]",
         "paddedClientID": "[padLeft(parameters('clientID'),4,'0')]",
         "sharedResourcesTemplateURL": "[uri(deployment().properties.templateLink.uri, concat('nested/sharedResources', parameters('implementationPhase'), '.json'))]",
-        "SQL2019": "sql2019-ws2019",
-        "SQL2022": "sql2022-ws2022",  // Lowercase
+        "SQL2019": "SQL2019-WS2019",
         "sqlDeveloperEncryption": "[variables('templateLinkSQLKeyVault')]",
         "sqlDeveloperVM": {
             "publisher": "MicrosoftSQLServer",
             "offer": "[variables('sqlOffer')]",
-            "sku": "sqldev",  
+            "sku": "SQLDEV",
             "version": "latest",
             "size": "[parameters('sqlVMSize')]"
         },
