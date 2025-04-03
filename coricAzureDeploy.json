@@ -218,9 +218,10 @@
                 "Standard_B2ms", //not supported for SQL2022
                 "Standard_DS11_v2",
                 "Standard_E8s_v3",
-                "Standard_D2s_v5"
+                "Standard_D2s_v5",
+                "Standard_D4s_v5"
             ],
-            "defaultValue": "Standard_D2s_v5",
+            "defaultValue": "Standard_D4s_v5",
             "metadata": {
                 "Description": "VM size for SQL Server."
             }
@@ -231,7 +232,7 @@
                 "",
                 "-BYOL"
             ],
-            "defaultValue": "true",
+            "defaultValue": "",
             "metadata": {
                 "Description": "Internal-use BYOL or client-licensed instance of SQL"
             }
@@ -550,7 +551,7 @@
             "diskEncryption": {
                 "aadClientID": "[parameters('aadClientID')]",
                 "aadClientCertThumbprint": "[parameters('aadClientCertThumbprint')]",
-                "keyVaultKEKURL": "[parameters('keyVaultKEKURL')]",
+                "keyVaultKEKURL": "",
                 //"keyVaultResourceID": "[parameters('keyVaultResourceID')]",
                 "keyVaultName": "[parameters('keyVaultName')]",
                 "keyVaultResourceGroup": "[parameters('keyVaultResourceGroup')]",
@@ -846,7 +847,7 @@
         "sqlDeveloperVM": {
             "publisher": "MicrosoftSQLServer",
             "offer": "[variables('sqlOffer')]",
-            "sku": "sqldev-gen2",  // Changed from "SQLDEV"
+            "sku": "sqldev",  
             "version": "latest",
             "size": "[parameters('sqlVMSize')]"
         },
