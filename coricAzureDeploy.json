@@ -845,7 +845,7 @@
         "sqlDeveloperVM": {
             "publisher": "MicrosoftSQLServer",
             "offer": "[variables('sqlOffer')]",
-            "sku": "SQLDEV",
+            "sku": "sqldev-gen2",  // Changed from "SQLDEV"
             "version": "latest",
             "size": "[parameters('sqlVMSize')]"
         },
