@@ -168,7 +168,7 @@
             ],
             "domainJoinTemplateLink": "[parameters('globals').templateLinkDomainJoin]",
             "encryptionTemplateLink": "[parameters('globals').templateLinkDiskEncryption]",
-            "imageReference": "[parameters('globals').windowsVM]",
+            "imageReference": "[parameters('globals').sqlVM]",
             "ipConfigurations": [
                 {
                     "name": "ipconfig1",
