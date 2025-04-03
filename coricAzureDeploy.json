@@ -839,8 +839,8 @@
         "octetsArr": "[split(parameters('vnetV2addressSpace'),'.')]",
         "paddedClientID": "[padLeft(parameters('clientID'),4,'0')]",
         "sharedResourcesTemplateURL": "[uri(deployment().properties.templateLink.uri, concat('nested/sharedResources', parameters('implementationPhase'), '.json'))]",
-        "SQL2019": "SQL2019-WS2019",
-        "SQL2022": "SQL2022-WS2022",
+        "SQL2019": "sql2019-ws2019",
+        "SQL2022": "sql2022-ws2022",  // Lowercase
         "sqlDeveloperEncryption": "[variables('templateLinkSQLKeyVault')]",
         "sqlDeveloperVM": {
             "publisher": "MicrosoftSQLServer",
