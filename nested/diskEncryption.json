@@ -46,16 +46,7 @@
         "protectedSettings": {
           "AADClientID": "[parameters('globals').diskEncryption.aadClientID]",
           "AADClientCertThumbprint": "[parameters('globals').diskEncryption.aadClientCertThumbprint]"
-        },
-    "retryPolicy": {
-      "retryInterval": "PT1M", // Retry every 1 minute
-      "retryTimeout": "PT30M", // Total retry window: 30 minutes
-      "maximumAttempts": 5,
-      "retryableErrorCodes": [
-        "VMExtensionProvisioningError",
-        "ResourceDeploymentFailure"
-      ]
-    }
+        }
       }
     },
 
