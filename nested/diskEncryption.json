@@ -23,39 +23,41 @@
   },
 
   "resources": [
-    // {
-    //   "type": "Microsoft.Compute/virtualMachines/extensions",
-    //   "name": "[concat(parameters('vmName'), '/BitLocker')]",
-    //   "apiVersion": "[parameters('globals').apiVersion.extension]",
-    //   "location": "[resourceGroup().location]",
-    //   "properties": {
-    //     "type": "AzureDiskEncryption",
-    //     "typeHandlerVersion": "2.2",
-    //     "autoUpgradeMinorVersion": true,
-    //     "publisher": "Microsoft.Azure.Security",
-    //     "settings": {
-    //       "KeyVaultURL": "[variables('keyVaultURL')]",
-    //       "KeyEncryptionKeyURL": "[parameters('globals').diskEncryption.keyVaultKEKURL]",
-    //       "KeyVaultResourceId": "[variables('keyVaultResourceId')]",
-    //       "KekVaultResourceId": "[variables('keyVaultResourceId')]",
-    //       "KeyEncryptionAlgorithm": "RSA-OAEP-256",//"RSA-OAEP-256"
-    //       "VolumeType": "All",
-    //       "EncryptionOperation": "EnableEncryption",
-    //       "SequenceVersion": "[parameters('globals').diskEncryption.sequenceVersion]"
-    //     },
-    //     "protectedSettings": {
-    //       "AADClientID": "[parameters('globals').diskEncryption.aadClientID]",
-    //       "AADClientCertThumbprint": "[parameters('globals').diskEncryption.aadClientCertThumbprint]"
-    //     }
-    //   }
-    // },
+    //commment out the first resources item if deploying extra drones (everthing from the first { to the first }, including the comma)
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('vmName'), '/BitLocker')]",
+      "apiVersion": "[parameters('globals').apiVersion.extension]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "type": "AzureDiskEncryption",
+        "typeHandlerVersion": "2.2",
+        "autoUpgradeMinorVersion": true,
+        "publisher": "Microsoft.Azure.Security",
+        "settings": {
+          "KeyVaultURL": "[variables('keyVaultURL')]",
+          "KeyEncryptionKeyURL": "[parameters('globals').diskEncryption.keyVaultKEKURL]",
+          "KeyVaultResourceId": "[variables('keyVaultResourceId')]",
+          "KekVaultResourceId": "[variables('keyVaultResourceId')]",
+          "KeyEncryptionAlgorithm": "RSA-OAEP-256",//"RSA-OAEP-256"
+          "VolumeType": "All",
+          "EncryptionOperation": "EnableEncryption",
+          "SequenceVersion": "[parameters('globals').diskEncryption.sequenceVersion]"
+        },
+        "protectedSettings": {
+          "AADClientID": "[parameters('globals').diskEncryption.aadClientID]",
+          "AADClientCertThumbprint": "[parameters('globals').diskEncryption.aadClientCertThumbprint]"
+        }
+      }
+    },
 
     {
       "apiVersion": "[parameters('globals').apiVersion.virtualMachine]",
       "type": "Microsoft.Compute/virtualMachines",
-      // "dependsOn": [
-      //   "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'), '/extensions/BitLocker')]"
-      // ],
+      //commment out the whole dependson section if deploying extra drones
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'), '/extensions/BitLocker')]"
+      ],
       "name": "[parameters('vmName')]",
       "location": "[resourceGroup().location]",
         "identity": {
@@ -72,9 +74,10 @@
 
   ],
   "outputs": {
-    // "BitLockerKey": {
-    //   "type": "string",
-    //   "value": "[reference(resourceId('Microsoft.Compute/virtualMachines/extensions',  parameters('vmName'), 'BitLocker')).instanceView.statuses[0].message]"
-    // }
+    //commment out the output content if deploying extra drones
+    "BitLockerKey": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Compute/virtualMachines/extensions',  parameters('vmName'), 'BitLocker')).instanceView.statuses[0].message]"
+    }
   }
 }
