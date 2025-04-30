@@ -51,6 +51,19 @@
             "ServicePrincipalSecret": "[parameters('globals').sqlEncryption.servicePrincipalSecret]",
             "ManagedIdentityClientId": ""  // Required for system-assigned identities
           }
+        },
+        "serverConfigurationsManagementSettings": {
+          "sqlInstanceSettings": {
+            "collation": "Latin1_General_CI_AS", 
+            "isIfiEnabled": true,
+            "maxDop": 8,
+            "maxServerMemoryMB": 4096,
+            "minServerMemoryMB": 512
+          },
+          "sqlConnectivityUpdateSettings": {
+            "connectivityType": "Private",
+            "port": 1433
+          }
         }
       },
       "type": "Microsoft.Compute/virtualMachines/extensions"
