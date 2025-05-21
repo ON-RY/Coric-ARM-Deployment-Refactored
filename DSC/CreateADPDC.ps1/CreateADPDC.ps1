@@ -34,7 +34,7 @@
     $InterfaceAlias=$($Interface.Name)
     $DomainDN = "DC=$($DomainName.Split(".")[0]),DC=$($DomainName.Split(".")[1])"
     $CoricComputersOU = "Coric Computers"
-    $CoricUsersOU = "Coric Users"
+    $CoricUsersOU = "ON Users"
     $CoricSecurityOU = "Coric Security"
 
     Node localhost
@@ -138,29 +138,29 @@
             DependsOn = "[xADOrganizationalUnit]CoricComputersAdmin"
         }
 
-        xADOrganizationalUnit CoricComputersAdminFS
+        <# xADOrganizationalUnit CoricComputersAdminFS
         {
             Name = "FS"
             Path = "OU=Admin,OU=$CoricComputersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricComputersAdmin"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricComputersAdminSSO
+        <# xADOrganizationalUnit CoricComputersAdminSSO
         {
             Name = "SSO"
             Path = "OU=Admin,OU=$CoricComputersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricComputersAdmin"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricComputersAdminMfa
+        <# xADOrganizationalUnit CoricComputersAdminMfa
         {
             Name      = "MFA"
             Path      = "OU=Admin,OU=$CoricComputersOU,$DomainDN"
             Ensure    = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricComputersAdmin"
-        }
+        }  #>
 
         xADOrganizationalUnit CoricComputersAdminFTP
         {
@@ -170,13 +170,13 @@
             DependsOn = "[xADOrganizationalUnit]CoricComputersAdmin"
         }
 
-        xADOrganizationalUnit CoricComputersAdminSQL
+        <# xADOrganizationalUnit CoricComputersAdminSQL
         {
             Name = "SQL"
             Path = "OU=Admin,OU=$CoricComputersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricComputersAdmin"
-        }
+        } #>
 
 
         xADOrganizationalUnit CoricComputersEnvP
@@ -203,29 +203,29 @@
             DependsOn = "[xADOrganizationalUnit]CoricComputersEnvP"
         }
 
-        xADOrganizationalUnit CoricComputersEnvPDesktop
+        <# xADOrganizationalUnit CoricComputersEnvPDesktop
         {
             Name = "Desktop"
             Path = "OU=Env P,OU=$CoricComputersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricComputersEnvP"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricComputersEnvPFile
+        <# xADOrganizationalUnit CoricComputersEnvPFile
         {
             Name = "File"
             Path = "OU=Env P,OU=$CoricComputersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricComputersEnvP"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricComputersEnvPPushPull
+        <# xADOrganizationalUnit CoricComputersEnvPPushPull
         {
             Name = "PushPull"
             Path = "OU=Env P,OU=$CoricComputersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricComputersEnvP"
-        }
+        } #>
 
         xADOrganizationalUnit CoricComputersEnvPSQL
         {
@@ -235,13 +235,13 @@
             DependsOn = "[xADOrganizationalUnit]CoricComputersEnvP"
         }
 
-        xADOrganizationalUnit CoricComputersEnvPWebReporter
+        <# xADOrganizationalUnit CoricComputersEnvPWebReporter
         {
             Name = "WebReporter"
             Path = "OU=Env P,OU=$CoricComputersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricComputersEnvP"
-        }
+        } #>
 
         xADOrganizationalUnit CoricComputersEnvU
         {
@@ -267,29 +267,29 @@
             DependsOn = "[xADOrganizationalUnit]CoricComputersEnvU"
         }
 
-        xADOrganizationalUnit CoricComputersEnvUDesktop
+        <# xADOrganizationalUnit CoricComputersEnvUDesktop
         {
             Name = "Desktop"
             Path = "OU=Env U,OU=$CoricComputersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricComputersEnvU"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricComputersEnvUFile
+        <# xADOrganizationalUnit CoricComputersEnvUFile
         {
             Name      = 'File'
             Path      = "OU=Env U,OU=$CoricComputersOU,$DomainDN"
             Ensure    = 'Present'
             DependsOn = '[xADOrganizationalUnit]CoricComputersEnvU'
-        }
+        } #>
 
-        xADOrganizationalUnit CoricComputersEnvUPushPull
+        <# xADOrganizationalUnit CoricComputersEnvUPushPull
         {
             Name = "PushPull"
             Path = "OU=Env U,OU=$CoricComputersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricComputersEnvU"
-        }
+        } #>
 
         xADOrganizationalUnit CoricComputersEnvUSQL
         {
@@ -299,13 +299,13 @@
             DependsOn = "[xADOrganizationalUnit]CoricComputersEnvU"
         }
 
-        xADOrganizationalUnit CoricComputersEnvUWebReporter
+        <# xADOrganizationalUnit CoricComputersEnvUWebReporter
         {
             Name = "WebReporter"
             Path = "OU=Env U,OU=$CoricComputersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricComputersEnvU"
-        }
+        } #>
 
 
         xADOrganizationalUnit CoricComputersEnvD
@@ -332,29 +332,29 @@
             DependsOn = "[xADOrganizationalUnit]CoricComputersEnvD"
         }
 
-        xADOrganizationalUnit CoricComputersEnvDDesktop
+        <# xADOrganizationalUnit CoricComputersEnvDDesktop
         {
             Name = "Desktop"
             Path = "OU=Env D,OU=$CoricComputersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricComputersEnvD"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricComputersEnvDFile
+        <# xADOrganizationalUnit CoricComputersEnvDFile
         {
             Name = "File"
             Path = "OU=Env D,OU=$CoricComputersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricComputersEnvD"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricComputersEnvDPushPull
+        <# xADOrganizationalUnit CoricComputersEnvDPushPull
         {
             Name = "PushPull"
             Path = "OU=Env D,OU=$CoricComputersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricComputersEnvD"
-        }
+        } #>
 
         xADOrganizationalUnit CoricComputersEnvDSQL
         {
@@ -364,13 +364,13 @@
             DependsOn = "[xADOrganizationalUnit]CoricComputersEnvD"
         }
 
-        xADOrganizationalUnit CoricComputersEnvDWebReporter
+        <# xADOrganizationalUnit CoricComputersEnvDWebReporter
         {
             Name = "WebReporter"
             Path = "OU=Env D,OU=$CoricComputersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricComputersEnvD"
-        }
+        } #>
 
         xADOrganizationalUnit CoricUsers
         {
@@ -380,17 +380,17 @@
             DependsOn = "[xADDomain]FirstDS"
         }
 
-        xADOrganizationalUnit CoricUsersDocumentWarehouseAccess
+        <# xADOrganizationalUnit CoricUsersDocumentWarehouseAccess
         {
             Name = "Document Warehouse Access"
             Path = "OU=$CoricUsersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricUsers"
-        }
+        } #>
 
         xADOrganizationalUnit CoricUsersHostingAdmin
         {
-            Name = "Hosting Admin"
+            Name = "Admin Users"
             Path = "OU=$CoricUsersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricUsers"
@@ -398,27 +398,27 @@
 
         xADOrganizationalUnit CoricUsersCoricSupport
         {
-            Name = "Coric Support"
+            Name = "Users"
             Path = "OU=$CoricUsersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricUsers"
         }
 
-   		xADOrganizationalUnit CoricUsersCoricPresales
+   		<# xADOrganizationalUnit CoricUsersCoricPresales
         {
             Name = "Coric Presales"
             Path = "OU=$CoricUsersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricUsers"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricUsersCoricPS
+        <# xADOrganizationalUnit CoricUsersCoricPS
         {
             Name = "Coric PS"
             Path = "OU=$CoricUsersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricUsers"
-        }
+        } #>
 
         xADOrganizationalUnit CoricUsersServiceAccounts
         {
@@ -428,77 +428,77 @@
             DependsOn = "[xADOrganizationalUnit]CoricUsers"
         }
 
-        xADOrganizationalUnit CoricUsersClientPowerUser
+        <# xADOrganizationalUnit CoricUsersClientPowerUser
         {
             Name = "Client Power User"
             Path = "OU=$CoricUsersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricUsers"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricUsersClientITUser
+        <# xADOrganizationalUnit CoricUsersClientITUser
         {
             Name = "Client IT User"
             Path = "OU=$CoricUsersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricUsers"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricUsersClientLiteUser
+        <# xADOrganizationalUnit CoricUsersClientLiteUser
         {
             Name = "Client Lite User"
             Path = "OU=$CoricUsersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricUsers"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricUsersClientBusinessUser
+        <# xADOrganizationalUnit CoricUsersClientBusinessUser
         {
             Name = "Client Business User"
             Path = "OU=$CoricUsersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricUsers"
-        }
+        } #>
 
-		xADOrganizationalUnit CoricUsersSCDaaSAdmin
+		<# xADOrganizationalUnit CoricUsersSCDaaSAdmin
         {
             Name = "SCDaaS Admin"
             Path = "OU=$CoricUsersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricUsers"
-        }
+        } #>
 
-		xADOrganizationalUnit CoricUsersSCDaaSSupport
+		<# xADOrganizationalUnit CoricUsersSCDaaSSupport
         {
             Name = "SCDaaS Support"
             Path = "OU=$CoricUsersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricUsers"
-        }
+        } #>
 
-   		xADOrganizationalUnit CoricUsersSimcorpUniSD
+   		<# xADOrganizationalUnit CoricUsersSimcorpUniSD
         {
             Name = "Simcorp UniSD"
             Path = "OU=$CoricUsersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricUsers"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricUsersLeavers
+        <# xADOrganizationalUnit CoricUsersLeavers
         {
             Name = "Leavers"
             Path = "OU=$CoricUsersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricUsers"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricUsersWorkflowTeamMembers
+        <# xADOrganizationalUnit CoricUsersWorkflowTeamMembers
         {
             Name = "Workflow Team Members"
             Path = "OU=$CoricUsersOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricUsers"
-        }
+        } #>
 
 
         xADOrganizationalUnit CoricSecurity
@@ -509,13 +509,13 @@
             DependsOn = "[xADDomain]FirstDS"
         }
 
-		xADOrganizationalUnit CoricSecurityAdmin
+		<# xADOrganizationalUnit CoricSecurityAdmin
         {
             Name = "Admin"
             Path = "OU=$CoricSecurityOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricSecurity"
-        }
+        } #>
 
         xADOrganizationalUnit CoricSecurityAdminApplicationAccessGroups
         {
@@ -534,101 +534,101 @@
         }
 
 
-        xADOrganizationalUnit CoricSecurityEnvP
+        <# xADOrganizationalUnit CoricSecurityEnvP
         {
             Name = "Env P"
             Path = "OU=$CoricSecurityOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricSecurity"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricSecurityEnvPApplicationAccessGroups
+        <# xADOrganizationalUnit CoricSecurityEnvPApplicationAccessGroups
         {
             Name = "Application Access Groups"
             Path = "OU=Env P,OU=$CoricSecurityOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricSecurityEnvP"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricSecurityEnvPRdpAccessGroups
+        <# xADOrganizationalUnit CoricSecurityEnvPRdpAccessGroups
         {
             Name = "RDP Access Groups"
             Path = "OU=Env P,OU=$CoricSecurityOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricSecurityEnvP"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricSecurityEnvPWarehouseAccessGroups
+        <# xADOrganizationalUnit CoricSecurityEnvPWarehouseAccessGroups
         {
             Name = "Warehouse Access Groups"
             Path = "OU=Env P,OU=$CoricSecurityOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricSecurityEnvP"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricSecurityEnvU
+        <# xADOrganizationalUnit CoricSecurityEnvU
         {
             Name = "Env U"
             Path = "OU=$CoricSecurityOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricSecurity"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricSecurityEnvUApplicationAccessGroups
+        <# xADOrganizationalUnit CoricSecurityEnvUApplicationAccessGroups
         {
             Name = "Application Access Groups"
             Path = "OU=Env U,OU=$CoricSecurityOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricSecurityEnvU"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricSecurityEnvURdpAccessGroups
+        <# xADOrganizationalUnit CoricSecurityEnvURdpAccessGroups
         {
             Name = "RDP Access Groups"
             Path = "OU=Env U,OU=$CoricSecurityOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricSecurityEnvU"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricSecurityEnvUWarehouseAccessGroups
+        <# xADOrganizationalUnit CoricSecurityEnvUWarehouseAccessGroups
         {
             Name = "Warehouse Access Groups"
             Path = "OU=Env U,OU=$CoricSecurityOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricSecurityEnvU"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricSecurityEnvD
+        <# xADOrganizationalUnit CoricSecurityEnvD
         {
             Name = "Env D"
             Path = "OU=$CoricSecurityOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricSecurity"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricSecurityEnvDApplicationAccessGroups
+        <# xADOrganizationalUnit CoricSecurityEnvDApplicationAccessGroups
         {
             Name = "Application Access Groups"
             Path = "OU=Env D,OU=$CoricSecurityOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricSecurityEnvD"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricSecurityEnvDRdpAccessGroups
+        <# xADOrganizationalUnit CoricSecurityEnvDRdpAccessGroups
         {
             Name = "RDP Access Groups"
             Path = "OU=Env D,OU=$CoricSecurityOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricSecurityEnvD"
-        }
+        } #>
 
-        xADOrganizationalUnit CoricSecurityEnvDWarehouseAccessGroups
+        <# xADOrganizationalUnit CoricSecurityEnvDWarehouseAccessGroups
         {
             Name = "Warehouse Access Groups"
             Path = "OU=Env D,OU=$CoricSecurityOU,$DomainDN"
             Ensure = "Present"
             DependsOn = "[xADOrganizationalUnit]CoricSecurityEnvD"
-        }
+        } #>
     }
 }
 
