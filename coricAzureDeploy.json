@@ -538,13 +538,13 @@
                 }
             },
             "dataDiskSizes": {
-                "dmz": 1023,
-                "dc": 1023,
-                "ftp": 1023,
-                "sql": 1023,
-                "warehouse": 1023,
-                "rdg": 1023,
-                "mfa": 1023
+                "dmz": 127,
+                "dc": 127,
+                "ftp": 127,
+                "sql": 511,
+                "warehouse": 511,
+                "rdg": 127,
+                "mfa": 127
             },
             "diskEncryption": {
                 "aadClientID": "[parameters('aadClientID')]",

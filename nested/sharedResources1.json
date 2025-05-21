@@ -46,23 +46,32 @@
             "appID": "dc",
             "basename": "[variables('dcBasename')]",
             "dataDiskTemplateLink": "[parameters('globals').templateLinkDataDisk]",
-            "dataDisks": [
-                {
-                    "name": "[concat(variables('dcBasename'), '01-datadisk-0')]",
-                    "diskSizeGB": "[parameters('globals').dataDiskSizes.ftp]",
-                    "lun": 0,
+            //"dataDisks": [
+            //    {
+            //        "name": "[concat(variables('dcBasename'), '01-datadisk-0')]",
+            //        "diskSizeGB": "[parameters('globals').dataDiskSizes.ftp]",
+            //        "lun": 0,
                     //"vhd": {
                     //    "uri": "[concat('http://', parameters('globals').storageAccountAdmin, '.blob.core.windows.net/', parameters('globals').vhdContainerName, '/', variables('dcBasename'), '01-Data0.vhd')]"
                     //},
-                    "managedDisk": {
-                        "storageAccountType": "[parameters('globals').storageAccountType]"
-                    },
-                    "createOption": "[if(equals(parameters('globals').vmRebuild, 'true'), 'Attach', 'Empty')]"
-                }
-            ],
+            //        "managedDisk": {
+            //            "storageAccountType": "[parameters('globals').storageAccountType]"
+            //        },
+            //        "createOption": "[if(equals(parameters('globals').vmRebuild, 'true'), 'Attach', 'Empty')]"
+            //    }
+            //],
             "domainJoinTemplateLink": "[parameters('globals').templateLinkDomainJoinNull]",
             "encryptionTemplateLink": "[parameters('globals').templateLinkDiskEncryption]",
             "imageReference": "[parameters('globals').windowsVM]",
+            "storageProfile": {
+                "osDisk": {
+                    "diskSizeGB": 63, // Explicitly set reduced OS disk size
+                    "createOption": "FromImage",
+                    "managedDisk": {
+                        "storageAccountType": "[parameters('globals').storageAccountType]"
+                    }
+                }
+            },
             "ipConfigurations": [
                 {
                     "name": "ipconfig1",
@@ -189,6 +198,15 @@
             "domainJoinTemplateLink": "[parameters('globals').templateLinkDomainJoin]",
             "encryptionTemplateLink": "[parameters('globals').templateLinkDiskEncryption]",
             "imageReference": "[parameters('globals').windowsVM]",
+            "storageProfile": {
+                "osDisk": {
+                    "diskSizeGB": 63, // Explicitly set reduced OS disk size
+                    "createOption": "FromImage",
+                    "managedDisk": {
+                        "storageAccountType": "[parameters('globals').storageAccountType]"
+                    }
+                }
+            },
             "ipConfigurations": [
                 {
                     "name": "ipconfig1",
