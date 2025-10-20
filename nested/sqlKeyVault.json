@@ -1,31 +1,27 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-
   "parameters": {
     "globals": {
-      "metadata": {
-        "Description": "Global complex object passed to nested templates"
-      },
-      "type": "object"
+      "type": "object",
+      "metadata": { "description": "Global complex object passed to nested templates" }
     },
-
     "vmName": {
-      "metadata": {
-        "Description": "The VM's name as shown in the portal - NOT the server's BIOS/hostname"
-      },
-      "type": "string"
+      "type": "string",
+      "metadata": { "description": "The VM's name as shown in the portal - NOT the server's BIOS/hostname" }
+    },
+    "machineSettings": {
+      "type": "object",
+      "metadata": { "description": "Per-VM role settings (contains appID, basename, disks, etc.)" }
     }
   },
-
-  "variables": {
-  },
-
+  "variables": {},
   "resources": [
     {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "[parameters('globals').apiVersion.extension]",
-      "location": "[resourceGroup().location]",
       "name": "[concat(parameters('vmName'), '/SqlIaasExtension')]",
+      "location": "[resourceGroup().location]",
       "properties": {
         "type": "SqlIaaSAgent",
         "publisher": "Microsoft.SqlServer.Management",
@@ -49,24 +45,32 @@
             "AzureKeyVaultUrl": "[parameters('globals').sqlEncryption.keyVaultURL]",
             "ServicePrincipalName": "[parameters('globals').sqlEncryption.servicePrincipalName]",
             "ServicePrincipalSecret": "[parameters('globals').sqlEncryption.servicePrincipalSecret]",
-            "ManagedIdentityClientId": ""  // Required for system-assigned identities
+            "ManagedIdentityClientId": ""
           }
-        },
+        }
+      }
+    },
+
+    {
+      "condition": "[equals(parameters('machineSettings').appID, 'sql')]",
+      "type": "Microsoft.SqlVirtualMachine/sqlVirtualMachines",
+      "apiVersion": "2023-02-01",
+      "name": "[parameters('vmName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+      ],
+      "properties": {
+        "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]",
+        "sqlManagement": "Full",
+        "sqlServerLicenseType": "[if(equals(parameters('globals').sqlBYOL, '-BYOL'), 'AHUB', 'PAYG')]",
         "serverConfigurationsManagementSettings": {
-          "sqlInstanceSettings": {
-            "collation": "Latin1_General_CI_AS", 
-            "isIfiEnabled": true,
-            "maxDop": 8,
-            "maxServerMemoryMB": 4096,
-            "minServerMemoryMB": 512
-          },
           "sqlConnectivityUpdateSettings": {
-            "connectivityType": "Private",
+            "connectivityType": "PRIVATE",
             "port": 1433
           }
         }
-      },
-      "type": "Microsoft.Compute/virtualMachines/extensions"
+      }
     }
   ]
 }
