@@ -57,9 +57,6 @@
       "apiVersion": "2023-02-01",
       "name": "[parameters('vmName')]",
       "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
-      ],
       "properties": {
         "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]",
         "sqlManagement": "Full",
