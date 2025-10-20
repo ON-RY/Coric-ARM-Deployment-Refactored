@@ -300,8 +300,7 @@
                 "count": "[parameters('machineSettings').numberOfVMs]"
             },
             "dependsOn": [
-                "[concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0'))]",
-                "[concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0'), '-Rebuild')]"
+                "[if(equals(parameters('globals').vmRebuild, 'true'), concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0'), '-Rebuild'), concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0')))]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -391,7 +390,7 @@
                 "count": "[parameters('machineSettings').numberOfVMs]"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0')))]",
+                "[if(equals(parameters('globals').vmRebuild, 'true'), concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0'), '-Rebuild'), concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0')))]",
                 "[concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0'), '-Extensions')]"
             ],
             "properties": {
