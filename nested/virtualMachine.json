@@ -388,7 +388,8 @@
                 "count": "[parameters('machineSettings').numberOfVMs]"
             },
             "dependsOn": [
-                "[concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0'), '-SQLKeyVault')]"
+                "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0')))]",
+                "[concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0'), '-Extensions')]"
             ],
             "properties": {
                 "mode": "Incremental",
