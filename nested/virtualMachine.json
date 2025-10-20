@@ -375,6 +375,9 @@
                     },
                     "vmName": {
                         "value": "[concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0'))]"
+                    },
+                    "machineSettings": {
+                        "value": "[parameters('machineSettings')]"
                     }
                 }
             }
