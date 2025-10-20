@@ -802,6 +802,7 @@
                 "servicePrincipalSecret": "[parameters('sqlServicePrincipalSecret')]",
                 "sqlCredentialName": "[parameters('sqlCredentialName')]"
             },
+            "sqlBYOL": "[parameters('sqlBYOL')]",            
             "sqlVM": "[variables(concat('sql',parameters('sqlSKU'),'VM'))]",
             "sqlEncryptionTemplate": "[variables(concat('sql',parameters('sqlSKU'),'Encryption'))]",
             "storageAccountAdmin": "[replace(concat('sa', variables('baseName'), 'admin'),'-','')]",
