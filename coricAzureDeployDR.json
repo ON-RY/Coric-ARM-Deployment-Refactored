@@ -35,6 +35,18 @@
       }
     },
 
+    "sqlBYOL": {
+      "type": "string",
+      "allowedValues": [
+        "",
+        "-BYOL"
+      ],
+      "defaultValue": "",
+      "metadata": {
+        "description": "Internal-use BYOL or client-licensed instance of SQL"
+      }
+    },
+
     "test": {
       "defaultValue": "",
       "type": "string",
@@ -69,6 +81,7 @@
       "baseName": "[variables('baseName')]",
       "checkPointTemplateLink": "[uri(deployment().properties.templateLink.uri, 'nested/checkPoint.json')]",
       "clientID": "[parameters('clientID')]",
+      "sqlBYOL": "[parameters('sqlBYOL')]",
       "networkSettings": {
         "addressSpace": "10.200.0.0/20",
         "azureDNS": "168.63.129.16",
