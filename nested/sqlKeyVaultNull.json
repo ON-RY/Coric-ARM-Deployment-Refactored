@@ -15,6 +15,14 @@
         "Description": "The VM's name as shown in the portal - NOT the server's BIOS/hostname"
       },
       "type": "string"
+    },
+
+    "machineSettings": {
+      "metadata": {
+        "Description": "Machine settings object (ignored in the null template)"
+      },
+      "type": "object",
+      "defaultValue": {}
     }
   },
 
