@@ -105,11 +105,17 @@
         ],
         "installSecurityGateway": true,
         "installSecurityManagement": false,
-        "LB1IPConfigId": "[concat(variables('lbId'), '/frontendIPConfigurations/LB1FrontEnd')]",
+        "lbFrontendName": "[concat(variables('lbName'), '-frontend')]",
+        "LB1IPConfigId": "[concat(variables('lbId'), '/frontendIPConfigurations/', variables('lbFrontendName'))]",
         "LB3IPConfigId": "[concat(variables('lbId'), '/frontendIPConfigurations/LB3FrontEnd')]",
         "LB4IPConfigId": "[concat(variables('lbId'), '/frontendIPConfigurations/LB4FrontEnd')]",
         "LB5IPConfigId": "[concat(variables('lbId'), '/frontendIPConfigurations/LB5FrontEnd')]",
         "LB6IPConfigId": "[concat(variables('lbId'), '/frontendIPConfigurations/LB6FrontEnd')]",
+        "lbSqlFrontendId": "[concat(variables('lbId'), '/frontendIPConfigurations/', variables('lbFrontendName'))]",
+        "sqlVmName": "[concat('vm', parameters('globals').sql.basename, '01')]",
+        "sqlBackendPoolName": "[concat(variables('sqlVmName'), '-backendpool')]",
+        "lbSqlBackendPoolId": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', variables('lbName'), variables('sqlBackendPoolName'))]",
+        "sqlOutboundRuleName": "[concat(variables('sqlVmName'), '-sql-outbound')]",
         "lbId": "[resourceId('Microsoft.Network/loadBalancers', variables('lbName'))]",
         "lbName": "lbCheckPointGateway",
         "managementGUIClientNetwork": "0.0.0.0/0",
@@ -355,7 +361,7 @@
             "properties": {
                 "frontendIPConfigurations": [
                     {
-                        "name": "LB1FrontEnd",
+                        "name": "[variables('lbFrontendName')]",
                         "properties": {
                             "publicIPAddress": {
                                 "id": "[variables('publicIPAddressLB1Id')]"
@@ -393,6 +399,11 @@
                                 "id": "[variables('publicIPAddressLB6Id')]"
                             }
                         }
+                    }
+                ],
+                "backendAddressPools": [
+                    {
+                        "name": "[variables('sqlBackendPoolName')]"
                     }
                 ],
                 "inboundNatRules": [
@@ -484,6 +495,23 @@
                             "protocol": "tcp"
                         }
                     }
+                ],
+                "outboundRules": [
+                    {
+                        "name": "[variables('sqlOutboundRuleName')]",
+                        "properties": {
+                            "protocol": "Tcp",
+                            "allocatedOutboundPorts": 63992,
+                            "frontendIPConfigurations": [
+                                {
+                                    "id": "[variables('lbSqlFrontendId')]"
+                                }
+                            ],
+                            "backendAddressPool": {
+                                "id": "[variables('lbSqlBackendPoolId')]"
+                            }
+                        }
+                    }
                 ]
             }
         },
@@ -535,6 +563,11 @@
                                 },
                                 {
                                     "id": "[concat(variables('lbId'), '/inboundNatRules/', variables('incomingTraffic')[8].name)]"
+                                }
+                            ],
+                            "loadBalancerBackendAddressPools": [
+                                {
+                                    "id": "[variables('lbSqlBackendPoolId')]"
                                 }
                             ]
                         }
