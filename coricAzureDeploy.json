@@ -408,6 +408,13 @@
         "sequenceVersion": {
             "type": "int"
         },
+        "skipDiskEncryptionOnRedeploy": {
+            "defaultValue": false,
+            "type": "bool",
+            "metadata": {
+                "description": "Set to true when redeploying existing encrypted VMs to avoid rerunning the BitLocker extension."
+            }
+        },
         "checkPointOffer": {
             "type": "string",
             "allowedValues": [

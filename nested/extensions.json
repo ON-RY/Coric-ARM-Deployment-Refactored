@@ -80,6 +80,7 @@
       "type": "Microsoft.Resources/deployments",
       "name": "[concat(parameters('vmName'), '-Encryption')]",
       "apiVersion": "[parameters('globals').apiVersion.deployment]",
+      "condition": "[not(parameters('globals').diskEncryption.skipOnRedeploy)]",
       "dependsOn": [
         "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'), '/extensions/bgInfoExt')]"
       ],
