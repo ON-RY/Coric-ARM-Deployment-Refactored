@@ -561,6 +561,7 @@
                 "keyVaultResourceGroup": "[parameters('keyVaultResourceGroup')]",
                 "keyVaultCertificateURL": "[parameters('keyVaultCertificateURL')]",
                 "sequenceVersion": "[parameters('sequenceVersion')]",
+                "skipOnRedeploy": "[parameters('skipDiskEncryptionOnRedeploy')]",
                 "vmEncryptionTemplateLink": "[uri(deployment().properties.templateLink.uri, 'nested/diskEncryption.json')]"
             },
             "storageAccountType": "[parameters('storageAccountType')]",
