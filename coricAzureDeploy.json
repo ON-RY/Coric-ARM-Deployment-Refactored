@@ -397,6 +397,13 @@
                 "description": "Name of the SQL user to be created for use with TDE EKM on Key Vault"
             }
         },
+        "sqlCollation": {
+            "type": "string",
+            "defaultValue": "Latin1_General_CI_AS",
+            "metadata": {
+                "description": "Collation applied to SQL Server instances during deployment."
+            }
+        },
         "sicKey": {
             "defaultValue": "",
             "type": "securestring",
@@ -517,6 +524,7 @@
                 "dnsZone": "2018-05-01",
                 "dsc": "2019-07-01",
                 "extension": "2023-07-01",
+                "sqlVirtualMachine": "2023-10-01",
                 "loadBalancer": "2020-11-01",
                 "network": "2018-02-01",
                 "networkpeerings": "2018-02-01",
@@ -842,7 +850,8 @@
                 "sku": "[parameters('windowsOSVersion')]",
                 "version": "latest",
                 "size": "[parameters('windowsVMSize')]"
-            }
+            },
+            "sqlCollation": "[parameters('sqlCollation')]"
         },
         "octetsArr": "[split(parameters('vnetV2addressSpace'),'.')]",
         "paddedClientID": "[padLeft(parameters('clientID'),4,'0')]",
