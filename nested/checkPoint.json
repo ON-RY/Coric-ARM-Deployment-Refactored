@@ -210,6 +210,9 @@
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "[parameters('globals').apiVersion.pip]",
             "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard"
+            },
             "properties": {
                 "dnsSettings": {
                     "domainNameLabel": "[toLower(variables('cpBasename'))]"
@@ -236,6 +239,9 @@
             "dependsOn": [
                 "[variables('rdsGatewayNicName')]"
             ],
+            "sku": {
+                "name": "Standard"
+            },
             "properties": {
                 "dnsSettings": {
                     "domainNameLabel": "[variables('incomingTraffic')[0].name]"
@@ -259,6 +265,9 @@
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "[parameters('globals').apiVersion.pip]",
             "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard"
+            },
             "properties": {
                 "dnsSettings": {
                     "domainNameLabel": "[variables('incomingTraffic')[2].name]"
@@ -282,6 +291,9 @@
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "[parameters('globals').apiVersion.pip]",
             "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard"
+            },
             "properties": {
                 "dnsSettings": {
                     "domainNameLabel": "[variables('incomingTraffic')[4].name]"
@@ -305,6 +317,9 @@
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "[parameters('globals').apiVersion.pip]",
             "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard"
+            },
             "properties": {
                 "dnsSettings": {
                     "domainNameLabel": "[variables('incomingTraffic')[6].name]"
@@ -328,6 +343,9 @@
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "[parameters('globals').apiVersion.pip]",
             "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard"
+            },
             "properties": {
                 "dnsSettings": {
                     "domainNameLabel": "[variables('incomingTraffic')[8].name]"
@@ -358,6 +376,9 @@
                 "[variables('publicIPAddressLB6Id')]"
             ],
             "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard"
+            },
             "properties": {
                 "frontendIPConfigurations": [
                     {
