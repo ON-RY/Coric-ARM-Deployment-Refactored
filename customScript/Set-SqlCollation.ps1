@@ -56,14 +56,10 @@ Wait-ForCondition -Condition { Test-Path $serverKey } -Description "SQL Server c
 $serverConfig = Get-ItemProperty -Path $serverKey -ErrorAction Stop
 $currentCollation = $null
 
-try {
-    $currentCollation = Get-ItemPropertyValue -Path $serverKey -Name 'Collation' -ErrorAction Stop
-} catch [System.Management.Automation.ItemNotFoundException] {
+if ($serverConfig.PSObject.Properties.Match('Collation').Count -gt 0) {
+    $currentCollation = $serverConfig.PSObject.Properties['Collation'].Value
+} else {
     Write-Verbose "Collation registry value is not yet available; proceeding without it." -Verbose
-} catch [System.Management.Automation.PropertyNotFoundException] {
-    Write-Verbose "Collation registry value is not yet available; proceeding without it." -Verbose
-} catch {
-    throw
 }
 
 if ($currentCollation) {
