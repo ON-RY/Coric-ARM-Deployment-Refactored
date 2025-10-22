@@ -99,7 +99,7 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "fileUris": [
-            "[uri(deployment().properties.templateLink.uri, 'customScript/Set-SqlCollation.ps1')]"
+            "[parameters('globals').customScript.setSqlCollation.scriptURL]"
           ]
         },
         "protectedSettings": {

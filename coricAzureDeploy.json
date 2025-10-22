@@ -549,6 +549,9 @@
                 "diskInitialize": {
                     "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file DiskInitialize.ps1",
                     "scriptURL": "[uri(deployment().properties.templateLink.uri, 'customScript/DiskInitialize.ps1')]"
+                },
+                "setSqlCollation": {
+                    "scriptURL": "[uri(deployment().properties.templateLink.uri, 'customScript/Set-SqlCollation.ps1')]"
                 }
             },
             "dataDiskSizes": {
