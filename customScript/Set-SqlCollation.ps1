@@ -171,8 +171,11 @@ try{
   $acl=Get-Acl -Path $dataDir
   $rule=New-Object System.Security.AccessControl.FileSystemAccessRule('NT SERVICE\MSSQLSERVER','Modify','ContainerInherit,ObjectInherit','None','Allow')
   $acl.SetAccessRule($rule); Set-Acl -Path $dataDir -AclObject $acl
-}catch{ Write-Host "WARN: Failed to set ACL on $dataDir $($_.Exception.Message)" }
-Write-Host "DATA directory: $dataDir"
+}catch{
+  # >>> FIXED LINE (use -f formatting so colon isn't glued to $dataDir)
+  Write-Host ("WARN: Failed to set ACL on {0}: {1}" -f $dataDir, $_.Exception.Message)
+}
+Write-Host ("DATA directory: {0}" -f $dataDir)
 
 # ----- stop related services -----
 $serviceNames=@(
@@ -199,11 +202,8 @@ $arguments=@(
   '/ACTION=REBUILDDATABASE',
   '/INSTANCENAME=MSSQLSERVER',
   "/SQLCOLLATION=$SqlCollation",
-  '/SQLSYSADMINACCOUNTS="BUILTIN\Administrators"',
-  "/SQLUSERDBDIR=""$dataDir""",
-  "/SQLUSERDBLOGDIR=""$dataDir""",
-  "/SQLTEMPDBDIR=""$dataDir""",
-  "/SQLTEMPDBLOGDIR=""$dataDir"""
+  '/SQLSYSADMINACCOUNTS="BUILTIN\Administrators"'
+  
 ) -join ' '
 
 Write-Host "Invoking: `"$SqlSetupPath`" $arguments"
