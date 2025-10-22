@@ -1,20 +1,13 @@
 <#
 Set-SqlCollation.ps1
 - Rebuilds SQL Server system databases for the DEFAULT instance (MSSQLSERVER) with the requested collation.
-- Designed for Azure Custom Script Extension (no interactive prompts).
+- Auto-handles pending reboot: schedules itself to resume after reboot, then restarts the VM.
+- Designed for Azure Custom Script Extension (non-interactive).
 
-Key safeguards:
-- Checks Windows pending reboot.
-- Ensures SQL media MAJOR version matches installed instance.
-- Stops all related services to avoid file locks.
-- Accepts license in silent mode.
-- Surfaces Setup Summary/Detail logs into CSE output on failure.
-
-USAGE (CSE example):
-  powershell -ExecutionPolicy Bypass -File Set-SqlCollation.ps1 -SqlCollation "SQL_Latin1_General_CP1_CI_AS" -Verbose
-
-OPTION: pin the exact setup.exe:
-  powershell -ExecutionPolicy Bypass -File Set-SqlCollation.ps1 -SqlCollation "SQL_Latin1_General_CP1_CI_AS" -SqlSetupPath "C:\SQLServer2022Full\setup.exe" -Verbose
+Example (SQL 2019 media in C:\SQLServerFull):
+  powershell -ExecutionPolicy Bypass -File Set-SqlCollation.ps1 `
+    -SqlCollation "SQL_Latin1_General_CP1_CI_AS" `
+    -SqlSetupPath "C:\SQLServerFull\setup.exe" -Verbose
 #>
 
 [CmdletBinding()]
@@ -22,24 +15,31 @@ param(
   [Parameter(Mandatory = $true)]
   [string]$SqlCollation,
 
-  # Optional: provide the exact path to setup.exe to avoid discovery/search.
+  # Optional: point to the exact setup.exe (recommended)
   [Parameter(Mandatory = $false)]
-  [string]$SqlSetupPath
+  [string]$SqlSetupPath,
+
+  # Internal flag used when the script resumes itself after a reboot
+  [switch]$ResumeAfterReboot
 )
 
 $ErrorActionPreference = 'Stop'
 
-# --- Logging for CSE troubleshooting ---------------------------------------------------------------
+# ---------------- Logging ----------------
 $logRoot = 'C:\WindowsAzure\Logs\CustomScript'
 $newLog  = $logRoot + '\Set-SqlCollation_{0:yyyyMMdd_HHmmss}.log' -f (Get-Date)
 New-Item -ItemType Directory -Path $logRoot -Force | Out-Null
 try { Start-Transcript -Path $newLog -Force -ErrorAction SilentlyContinue } catch {}
 
+# Keep a simple marker so we don’t create multiple tasks
+$marker = Join-Path $logRoot 'Set-SqlCollation.resume.marker'
+$taskName = 'Set-SqlCollation-Resume'
+
 function Wait-ForCondition {
   [CmdletBinding()]
   param(
-    [Parameter(Mandatory = $true)][scriptblock]$Condition,
-    [Parameter(Mandatory = $true)][string]$Description,
+    [Parameter(Mandatory=$true)][scriptblock]$Condition,
+    [Parameter(Mandatory=$true)][string]$Description,
     [int]$TimeoutMinutes = 45,
     [int]$DelaySeconds = 15
   )
@@ -53,26 +53,83 @@ function Wait-ForCondition {
   return $result
 }
 
-# --- Basic validation -----------------------------------------------------------------------------
+function New-ResumeTask-And-Reboot {
+  param(
+    [Parameter(Mandatory=$true)][string]$ScriptPath,
+    [Parameter(Mandatory=$true)][string]$SqlCollationArg,
+    [string]$SqlSetupPathArg
+  )
+
+  if (Test-Path $marker) {
+    Write-Host "Resume marker already present; skipping task creation."
+  } else {
+    # Build the argument string the task will run after reboot
+    $argParts = @(
+      '-NoProfile',
+      '-ExecutionPolicy', 'Bypass',
+      '-File', ('"{0}"' -f $ScriptPath),
+      '-SqlCollation', ('"{0}"' -f $SqlCollationArg),
+      '-ResumeAfterReboot',
+      '-Verbose'
+    )
+    if ($SqlSetupPathArg) {
+      $argParts += @('-SqlSetupPath', ('"{0}"' -f $SqlSetupPathArg))
+    }
+    $taskArgs = ($argParts -join ' ')
+
+    $action    = New-ScheduledTaskAction -Execute 'PowerShell.exe' -Argument $taskArgs
+    $trigger   = New-ScheduledTaskTrigger -AtStartup
+    $principal = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -RunLevel Highest -LogonType ServiceAccount
+
+    Write-Host "Registering resume task '$taskName' to run at startup as SYSTEM..."
+    Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Principal $principal -Force | Out-Null
+
+    # Create marker so we don't create this repeatedly
+    New-Item -Path $marker -ItemType File -Force | Out-Null
+  }
+
+  Write-Host "Rebooting now to clear pending reboot state..."
+  try { Stop-Transcript | Out-Null } catch {}
+  Restart-Computer -Force
+  # Execution stops here; after reboot the task will run us with -ResumeAfterReboot
+}
+
+# -------- Basic validation --------
 if ($SqlCollation -notmatch '^[A-Za-z0-9_]+$') {
   Write-Error "SqlCollation '$SqlCollation' contains invalid characters. Example: SQL_Latin1_General_CP1_CI_AS"
   try { Stop-Transcript | Out-Null } catch {}
   exit 1
 }
 
-# --- Fail fast on pending reboot ------------------------------------------------------------------
+# -------- Pending reboot handling --------
 $pendingReboot = (
   (Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending' -ErrorAction SilentlyContinue) -ne $null
 ) -or (
   Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager' -Name 'PendingFileRenameOperations' -ErrorAction SilentlyContinue
 )
-if ($pendingReboot) {
-  Write-Error "Windows has a pending reboot. Reboot the VM and rerun the deployment."
-  try { Stop-Transcript | Out-Null } catch {}
-  exit 1
+
+if ($pendingReboot -and -not $ResumeAfterReboot) {
+  # Create resume task & reboot. Use our current on-disk path from the CSE folder (or wherever we are).
+  $thisScript = $PSCommandPath
+  if (-not $thisScript) { $thisScript = $MyInvocation.MyCommand.Path }
+  if (-not (Test-Path $thisScript)) { throw "Cannot determine current script path for resume scheduling." }
+
+  New-ResumeTask-And-Reboot -ScriptPath $thisScript -SqlCollationArg $SqlCollation -SqlSetupPathArg $SqlSetupPath
+  return
 }
 
-# --- Discover default instance via registry --------------------------------------------------------
+# If we’re resuming, remove the task+marker ASAP to avoid loops
+if ($ResumeAfterReboot) {
+  try {
+    if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
+      Unregister-ScheduledTask -TaskName $taskName -Confirm:$false | Out-Null
+      Write-Host "Removed resume task '$taskName'."
+    }
+  } catch {}
+  try { if (Test-Path $marker) { Remove-Item $marker -Force } } catch {}
+}
+
+# -------- Discover default instance --------
 $instanceKey = 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\Instance Names\SQL'
 Wait-ForCondition -Condition { Test-Path -LiteralPath $instanceKey } -Description "SQL Server instance registry key at $instanceKey"
 
@@ -90,13 +147,12 @@ Wait-ForCondition -Condition { Test-Path -LiteralPath $serverKey } -Description 
 # Instance version info (to match media)
 $setupKey   = "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\$instanceName\Setup"
 $setupInfo  = Get-ItemProperty -Path $setupKey -ErrorAction Stop
-$instVerStr = $setupInfo.Version         # e.g. 16.0.1000.6
+$instVerStr = $setupInfo.Version
 $instVer    = [version]$instVerStr
-$instMajor  = $instVer.Major             # 15=SQL2019, 16=SQL2022
-
+$instMajor  = $instVer.Major   # 15=SQL 2019, 16=SQL 2022
 Write-Host "Detected instance '$instanceName' version $instVerStr (major=$instMajor)."
 
-# --- Current collation (if available)
+# Current collation (if present)
 $currentCollation = $null
 try {
   $serverConfig = Get-ItemProperty -Path $serverKey -ErrorAction Stop
@@ -123,13 +179,13 @@ if ($currentCollation) {
   Write-Host "Current SQL Server collation is not yet set in the registry; proceeding with rebuild."
 }
 
-# --- Normalize system drive root to 'C:\' ---------------------------------------------------------
+# -------- System drive normalization --------
 $sd = [string]$env:SystemDrive
 if (-not $sd.EndsWith('\')) { $sd = $sd + '\' }
 if ($sd -notmatch '^[A-Za-z]:\\$') { $sd = 'C:\' }
-Write-Host ("DEBUG: SystemDrive='{0}' (type={1})" -f $sd, $sd.GetType().FullName)
+Write-Host ("DEBUG: SystemDrive='{0}'" -f $sd)
 
-# --- Locate setup.exe -----------------------------------------------------------------------------
+# -------- Locate setup.exe --------
 $setupPath = $null
 if ($SqlSetupPath) {
   if (Test-Path -LiteralPath $SqlSetupPath) {
@@ -143,63 +199,49 @@ if ($SqlSetupPath) {
 }
 
 if (-not $setupPath) {
-  # Prefer matching media folder based on instance MAJOR
   $preferredFolder = switch ($instMajor) {
-    16 { $sd + 'SQLServer2022Full' }  # SQL 2022
-    15 { $sd + 'SQLServer2019Full' }  # SQL 2019
+    16 { $sd + 'SQLServer2022Full' }
+    15 { $sd + 'SQLServerFull'     }  # <- your 2019 default drop
     Default { $null }
   }
   $candidates = @()
   if ($preferredFolder -and (Test-Path -LiteralPath $preferredFolder)) {
     $candidates += ,($preferredFolder + '\setup.exe')
   }
-  # Fall back to common names
   $candidates += @(
-    $sd + 'SQLServerFull\setup.exe',
     $sd + 'SQLServer2019Full\setup.exe',
     $sd + 'SQLServer2022Full\setup.exe'
   )
   foreach ($cand in $candidates) {
     if (Test-Path -LiteralPath $cand) { $setupPath = $cand; break }
   }
-  if (-not $setupPath) {
-    try {
-      $roots = Get-ChildItem -LiteralPath $sd -Directory -Filter 'SQLServer*' -ErrorAction SilentlyContinue
-      foreach ($root in $roots) {
-        $cand = Get-ChildItem -LiteralPath $root.FullName -Filter 'setup.exe' -File -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-        if ($cand) { $setupPath = $cand.FullName; break }
-      }
-    } catch { Write-Verbose "Fallback search for setup.exe failed: $($_.Exception.Message)" -Verbose }
-  }
 }
 if (-not $setupPath) {
-  Write-Error 'Unable to locate setup.exe for SQL Server. Cannot rebuild system databases to change the collation.'
+  Write-Error 'Unable to locate setup.exe for SQL Server. Provide -SqlSetupPath.'
   try { Stop-Transcript | Out-Null } catch {}
   exit 1
 }
 Write-Host "Setup path resolved to: '$setupPath'"
 
-# --- Confirm media MAJOR matches instance MAJOR ---------------------------------------------------
+# Confirm media major matches instance major
 $setupVerStr = (Get-Item -LiteralPath $setupPath).VersionInfo.ProductVersion
 $setupVer    = [version]$setupVerStr
 $setupMajor  = $setupVer.Major
 Write-Host "Detected setup.exe version $setupVerStr (major=$setupMajor)."
-
 if ($setupMajor -ne $instMajor) {
-  Write-Error "SQL media mismatch: instance major=$instMajor, setup major=$setupMajor. Use matching media (e.g., SQL 2019↔15.x, SQL 2022↔16.x)."
+  Write-Error "SQL media mismatch: instance major=$instMajor, setup major=$setupMajor. Use matching media (2019↔15.x, 2022↔16.x)."
   try { Stop-Transcript | Out-Null } catch {}
   exit 1
 }
 
-# --- Ensure DATA directory exists (where master files will live) ----------------------------------
-$sqlPath  = $setupInfo.SQLPath            # e.g. C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\
+# Ensure DATA dir
+$sqlPath  = $setupInfo.SQLPath  # e.g. C:\Program Files\Microsoft SQL Server\MSSQL15.MSSQLSERVER\MSSQL\
 $dataDir  = if ($sqlPath) { $sqlPath.TrimEnd('\') + '\DATA' } else { $null }
 if ($dataDir -and -not (Test-Path -LiteralPath $dataDir)) {
   New-Item -ItemType Directory -Path $dataDir -Force | Out-Null
 }
-if ($dataDir) { Write-Host "DATA directory: '$dataDir'" }
 
-# --- Stop ALL related SQL services to avoid file locks --------------------------------------------
+# Stop SQL-related services (avoid file locks)
 $serviceNames = @(
   'SQLSERVERAGENT','MSSQLSERVER','SQLBrowser','SQLWriter','SQLFullText',
   'MsDtsServer130','MsDtsServer140','MsDtsServer150','MsDtsServer160',
@@ -217,7 +259,7 @@ foreach ($sn in $serviceNames) {
 }
 $null = Wait-ForCondition -Condition { Get-Service -Name 'MSSQLSERVER' -ErrorAction SilentlyContinue } -Description "SQL Server service MSSQLSERVER presence"
 
-# --- Build arguments and run setup (REBUILDDATABASE) ----------------------------------------------
+# Build arguments and run setup
 $arguments = @(
   '/QUIET',
   '/IACCEPTSQLSERVERLICENSETERMS',
@@ -226,36 +268,24 @@ $arguments = @(
   "/SQLCOLLATION=$SqlCollation",
   '/SQLSYSADMINACCOUNTS="BUILTIN\Administrators"'
 )
-
-# Optional: force dirs explicitly if you want to be pedantic
-# if ($dataDir) {
-#   $arguments += "/SQLUSERDBDIR=""$dataDir"""
-#   $arguments += "/SQLUSERDBLOGDIR=""$dataDir"""
-#   $arguments += "/SQLTEMPDBDIR=""$dataDir"""
-#   $arguments += "/SQLTEMPDBLOGDIR=""$dataDir"""
-# }
-
 $argLine = ($arguments -join ' ')
 Write-Host "Invoking: `"$setupPath`" $argLine"
 $proc = Start-Process -FilePath $setupPath -ArgumentList $argLine -PassThru -Wait -NoNewWindow
 
-# --- On failure: surface Setup logs (Summary & latest Detail) to CSE output -----------------------
+# Dump setup logs on failure
 function Write-SetupLogsTail {
-  param([int]$Lines = 80)
+  param([int]$Lines = 120)
   $root = Join-Path $env:ProgramFiles 'Microsoft SQL Server'
   if (-not (Test-Path -LiteralPath $root)) { return }
   $majors = @($instMajor, 17, 16, 15, 14) | Select-Object -Unique
   foreach ($m in $majors) {
     $logRoot = Join-Path (Join-Path $root "$m`0\Setup Bootstrap\Log") ''
     if (-not (Test-Path -LiteralPath $logRoot)) { continue }
-
     $summary = Join-Path $logRoot 'Summary.txt'
     if (Test-Path -LiteralPath $summary) {
       Write-Host "----- Tail of setup Summary.txt ($summary) -----"
       Get-Content -LiteralPath $summary -ErrorAction SilentlyContinue | Select-Object -Last $Lines | ForEach-Object { Write-Host $_ }
     }
-
-    # Find latest timestamped subfolder and print Detail.txt tail
     $latest = Get-ChildItem -LiteralPath $logRoot -Directory -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
     if ($latest) {
       $detail = Join-Path $latest.FullName 'Detail.txt'
@@ -275,7 +305,7 @@ if ($proc.ExitCode -ne 0) {
   exit $proc.ExitCode
 }
 
-# --- Start the engine after rebuild ----------------------------------------------------------------
+# Start engine
 $svc = Get-Service -Name 'MSSQLSERVER' -ErrorAction Stop
 if ($svc.Status -ne 'Running') {
   Write-Host "Starting service MSSQLSERVER..."
