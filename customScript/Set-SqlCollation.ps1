@@ -6,7 +6,9 @@ param(
   [Parameter(Mandatory=$false)]
   [string]$SqlSetupPath = 'C:\SQLServerFull\setup.exe',
 
-  [switch]$ResumeAfterReboot
+  [switch]$ResumeAfterReboot,
+
+  [switch]$SkipRebootWhenPending
 )
 
 $ErrorActionPreference = 'Stop'
@@ -37,7 +39,13 @@ function Test-PendingReboot {
 }
 
 function Register-ResumeTask {
-  param([string]$TaskName,[string]$ScriptFullPath,[string]$SqlCollationArg,[string]$SqlSetupPathArg)
+    param(
+      [string]$TaskName,
+      [string]$ScriptFullPath,
+      [string]$SqlCollationArg,
+      [string]$SqlSetupPathArg,
+      [bool]$SkipRebootArg
+    )
   $pwsh="$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
   $args=@(
     '-NoProfile','-ExecutionPolicy','Bypass',
@@ -45,7 +53,11 @@ function Register-ResumeTask {
     '-SqlCollation',('"{0}"' -f $SqlCollationArg),
     '-SqlSetupPath',('"{0}"' -f $SqlSetupPathArg),
     '-ResumeAfterReboot','-Verbose'
-  ) -join ' '
+  )
+  if($SkipRebootArg){
+    $args += '-SkipRebootWhenPending'
+  }
+  $args = $args -join ' '
   try{ Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue }catch{}
   $action=New-ScheduledTaskAction -Execute $pwsh -Argument $args
   $trigger=New-ScheduledTaskTrigger -AtStartup
@@ -91,7 +103,7 @@ function Tail-SetupLogs { param([int]$Lines=120)
 
 # ----- validate input -----
 if($SqlCollation -notmatch '^[A-Za-z0-9_]+$'){
-  Write-Error "SqlCollation '$SqlCollation' contains invalid characters. Example: SQL_Latin1_General_CP1_CI_AS"
+  Write-Error "SqlCollation '$SqlCollation' contains invalid characters. Example SQL_Latin1_General_CP1_CI_AS"
   try{ Stop-Transcript | Out-Null }catch{}
   exit 1
 }
@@ -102,8 +114,13 @@ $scriptPath=$MyInvocation.MyCommand.Path
 
 if(-not $ResumeAfterReboot){
   if(Test-PendingReboot){
+    Register-ResumeTask -TaskName $TaskName -ScriptFullPath $scriptPath -SqlCollationArg $SqlCollation -SqlSetupPathArg $SqlSetupPath -SkipRebootArg $SkipRebootWhenPending.IsPresent
+    if($SkipRebootWhenPending){
+      Write-Host "Pending reboot detected -> resume task registered. Skipping reboot because -SkipRebootWhenPending was specified."
+      try{ Stop-Transcript | Out-Null }catch{}
+      exit 0
+    }
     Write-Host "Pending reboot detected -> registering resume task and rebooting now."
-    Register-ResumeTask -TaskName $TaskName -ScriptFullPath $scriptPath -SqlCollationArg $SqlCollation -SqlSetupPathArg $SqlSetupPath
     try{ Stop-Transcript | Out-Null }catch{}
     Restart-Computer -Force
     Start-Sleep -Seconds 10
@@ -139,7 +156,7 @@ try{
   $serverConfig=Get-ItemProperty -Path $serverKey -ErrorAction Stop
   if($serverConfig.PSObject.Properties.Match('Collation').Count -gt 0){
     $cur=[string]$serverConfig.PSObject.Properties['Collation'].Value
-    if($cur){ Write-Host "Current collation: $cur" }
+    if($cur){ Write-Host "Current collation $cur" }
     if($cur -eq $SqlCollation){
       Write-Host "SQL Server already uses $SqlCollation. Nothing to do."
       try{ Stop-Transcript | Out-Null }catch{}
@@ -158,7 +175,7 @@ $setupVerStr=(Get-Item -LiteralPath $SqlSetupPath).VersionInfo.ProductVersion
 $setupMajor=([version]$setupVerStr).Major
 Write-Host "Using setup.exe '$SqlSetupPath' version $setupVerStr (major=$setupMajor)."
 if($setupMajor -ne $instMajor){
-  Write-Error "SQL media mismatch: instance major=$instMajor, setup major=$setupMajor. Use matching media (SQL 2019 = 15.x)."
+  Write-Error "SQL media mismatch instance major=$instMajor, setup major=$setupMajor. Use matching media (SQL 2019 = 15.x)."
   try{ Stop-Transcript | Out-Null }catch{}
   exit 1
 }
@@ -172,10 +189,9 @@ try{
   $rule=New-Object System.Security.AccessControl.FileSystemAccessRule('NT SERVICE\MSSQLSERVER','Modify','ContainerInherit,ObjectInherit','None','Allow')
   $acl.SetAccessRule($rule); Set-Acl -Path $dataDir -AclObject $acl
 }catch{
-  # >>> FIXED LINE (use -f formatting so colon isn't glued to $dataDir)
-  Write-Host ("WARN: Failed to set ACL on {0}: {1}" -f $dataDir, $_.Exception.Message)
+  Write-Host ("WARN Failed to set ACL on {0} {1}" -f $dataDir, $_.Exception.Message)
 }
-Write-Host ("DATA directory: {0}" -f $dataDir)
+Write-Host ("DATA directory {0}" -f $dataDir)
 
 # ----- stop related services -----
 $serviceNames=@(
@@ -206,7 +222,7 @@ $arguments=@(
   
 ) -join ' '
 
-Write-Host "Invoking: `"$SqlSetupPath`" $arguments"
+Write-Host "Invoking `"$SqlSetupPath`" $arguments"
 $proc=Start-Process -FilePath $SqlSetupPath -ArgumentList $arguments -PassThru -Wait -NoNewWindow
 
 if($proc.ExitCode -ne 0){

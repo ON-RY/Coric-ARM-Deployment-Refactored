@@ -103,7 +103,27 @@
           ]
         },
         "protectedSettings": {
-          "commandToExecute": "[concat('powershell -ExecutionPolicy Bypass -File Set-SqlCollation.ps1 -SqlCollation \"', parameters('globals').sqlCollation, '\"')]"
+          "commandToExecute": "[concat('powershell -ExecutionPolicy Bypass -File Set-SqlCollation.ps1 -SqlCollation \"', parameters('globals').sqlCollation, '\" -SkipRebootWhenPending')]"
+        }
+      }
+    },
+
+    {
+      "condition": "[equals(parameters('machineSettings').appID, 'sql')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('vmName'), '/SqlCollationReboot')]",
+      "apiVersion": "[parameters('globals').apiVersion.extension]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'), '/extensions/SqlCollation')]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.CPlat.Core",
+        "type": "RunCommandWindows",
+        "typeHandlerVersion": "1.1",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "commandToExecute": "powershell -ExecutionPolicy Bypass -Command \"Import-Module ScheduledTasks -ErrorAction SilentlyContinue; if (Get-ScheduledTask -TaskName 'Set-SqlCollation-Resume' -ErrorAction SilentlyContinue) { Write-Host 'Resume task detected; scheduling reboot.'; shutdown.exe /r /t 5 /f } else { Write-Host 'No resume task present; skipping reboot.' }\""
         }
       }
     },
