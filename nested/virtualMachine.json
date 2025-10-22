@@ -394,7 +394,7 @@
             },
             "dependsOn": [
                 "[if(equals(parameters('globals').vmRebuild, 'true'), concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0'), '-Rebuild'), concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0')))]",
-                "[concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0'), '-Extensions')]"
+                "[concat(variables('vmNamePortal'), padLeft(copyIndex(parameters('copyIndexOffset')), 2, '0'), '-DataDisk')]"
             ],
             "properties": {
                 "mode": "Incremental",

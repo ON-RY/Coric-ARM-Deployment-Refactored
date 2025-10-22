@@ -8,21 +8,50 @@ $ErrorActionPreference = 'Stop'
 
 Write-Verbose "Requested SQL Server collation: $SqlCollation" -Verbose
 
+function Wait-ForCondition {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [scriptblock]$Condition,
+
+        [Parameter(Mandatory = $true)]
+        [string]$Description,
+
+        [int]$TimeoutMinutes = 45,
+        [int]$DelaySeconds = 15
+    )
+
+    $deadline = (Get-Date).AddMinutes($TimeoutMinutes)
+    $result = $null
+    while (-not ($result = & $Condition)) {
+        if ((Get-Date) -ge $deadline) {
+            throw "Timed out waiting for $Description after $TimeoutMinutes minutes."
+        }
+
+        Write-Host "Waiting for $Description..."
+        Start-Sleep -Seconds $DelaySeconds
+    }
+
+    return $result
+}
+
 # Discover the instance ID for the default instance
 $instanceKey = 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\Instance Names\SQL'
-if (-not (Test-Path $instanceKey)) {
-    throw "Unable to locate the SQL Server instance registry key at $instanceKey."
-}
+Wait-ForCondition -Condition { Test-Path $instanceKey } -Description "SQL Server instance registry key at $instanceKey"
 
-$instanceName = (Get-ItemProperty -Path $instanceKey).MSSQLSERVER
-if (-not $instanceName) {
-    throw 'Failed to resolve the default SQL Server instance name from the registry.'
-}
+$instanceName = Wait-ForCondition -Condition {
+        if (Test-Path $instanceKey) {
+            $name = (Get-ItemProperty -Path $instanceKey -ErrorAction SilentlyContinue).MSSQLSERVER
+            if ($name) {
+                return $name
+            }
+        }
+
+        $false
+    } -Description 'default SQL Server instance name'
 
 $serverKey = "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\$instanceName\MSSQLServer"
-if (-not (Test-Path $serverKey)) {
-    throw "Unable to locate the SQL Server configuration registry key at $serverKey."
-}
+Wait-ForCondition -Condition { Test-Path $serverKey } -Description "SQL Server configuration registry key at $serverKey"
 
 $currentCollation = (Get-ItemProperty -Path $serverKey -Name Collation).Collation
 Write-Verbose "Current SQL Server collation: $currentCollation" -Verbose
@@ -68,6 +97,7 @@ Write-Host "Rebuilding SQL Server system databases with collation $SqlCollation 
 
 # Ensure the SQL Server service is stopped before rebuilding
 $serviceName = 'MSSQLSERVER'
+$null = Wait-ForCondition -Condition { Get-Service -Name $serviceName -ErrorAction SilentlyContinue } -Description "SQL Server service $serviceName"
 if (Get-Service -Name $serviceName -ErrorAction SilentlyContinue) {
     if ((Get-Service -Name $serviceName).Status -ne 'Stopped') {
         Stop-Service -Name $serviceName -Force -ErrorAction Stop
