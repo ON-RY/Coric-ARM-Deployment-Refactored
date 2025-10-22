@@ -84,9 +84,9 @@ if ($currentCollation) {
 
 # Determine the SQL Server setup executable path
 $knownSetupFolders = @(
-    Join-Path $env:SystemDrive 'SQLServerFull',
-    Join-Path $env:SystemDrive 'SQLServer2019Full',
-    Join-Path $env:SystemDrive 'SQLServer2022Full'
+    Join-Path -Path $env:SystemDrive -ChildPath 'SQLServerFull'
+    Join-Path -Path $env:SystemDrive -ChildPath 'SQLServer2019Full'
+    Join-Path -Path $env:SystemDrive -ChildPath 'SQLServer2022Full'
 ) | Where-Object { Test-Path $_ }
 
 $setupPath = $null
