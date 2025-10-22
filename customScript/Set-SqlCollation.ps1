@@ -208,7 +208,7 @@ try {
   $acl  = Get-Acl -Path $dataDir
   $rule = New-Object System.Security.AccessControl.FileSystemAccessRule('NT SERVICE\MSSQLSERVER','Modify','ContainerInherit,ObjectInherit','None','Allow')
   $acl.SetAccessRule($rule); Set-Acl -Path $dataDir -AclObject $acl
-} catch { Write-Host "WARN: Failed to set ACL on $dataDir: $($_.Exception.Message)" }
+} catch { Write-Host "WARN: Failed to set ACL on $dataDir $($_.Exception.Message)" }
 
 Write-Host "DATA directory: $dataDir"
 
