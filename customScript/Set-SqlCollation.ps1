@@ -53,13 +53,22 @@ $instanceName = Wait-ForCondition -Condition {
 $serverKey = "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\$instanceName\MSSQLServer"
 Wait-ForCondition -Condition { Test-Path $serverKey } -Description "SQL Server configuration registry key at $serverKey"
 
-$serverConfig = Get-ItemProperty -Path $serverKey -ErrorAction Stop
 $currentCollation = $null
 
-if ($serverConfig.PSObject.Properties.Match('Collation').Count -gt 0) {
-    $currentCollation = $serverConfig.PSObject.Properties['Collation'].Value
-} else {
-    Write-Verbose "Collation registry value is not yet available; proceeding without it." -Verbose
+try {
+    $serverConfig = Get-ItemProperty -Path $serverKey -ErrorAction Stop
+    if ($serverConfig.PSObject.Properties.Match('Collation').Count -gt 0) {
+        $currentCollation = $serverConfig.PSObject.Properties['Collation'].Value
+    } else {
+        Write-Verbose "Collation registry value is not yet available; proceeding without it." -Verbose
+    }
+}
+catch {
+    if ($_.FullyQualifiedErrorId -like '*PropertyNotFoundException*' -or $_.Exception.Message -match 'Property Collation does not exist') {
+        Write-Verbose "Collation registry value is not yet available; proceeding without it." -Verbose
+    } else {
+        throw
+    }
 }
 
 if ($currentCollation) {
