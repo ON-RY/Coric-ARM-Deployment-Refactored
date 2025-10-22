@@ -347,6 +347,9 @@
                     },
                     "encryptionTemplateLink": {
                         "value": "[parameters('machineSettings').encryptionTemplateLink]"
+                    },
+                    "machineSettings": {
+                        "value": "[parameters('machineSettings')]"
                     }
                 }
             }

@@ -50,32 +50,6 @@
         }
       }
     },
-
-    {
-      "condition": "[equals(parameters('machineSettings').appID, 'sql')]",
-      "type": "Microsoft.Compute/virtualMachines/extensions",
-      "apiVersion": "[parameters('globals').apiVersion.extension]",
-      "name": "[concat(parameters('vmName'), '/SqlCollation')]",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('vmName'), 'SqlIaasExtension')]"
-      ],
-      "properties": {
-        "publisher": "Microsoft.Compute",
-        "type": "CustomScriptExtension",
-        "typeHandlerVersion": "1.10",
-        "autoUpgradeMinorVersion": true,
-        "settings": {
-          "fileUris": [
-            "[uri(deployment().properties.templateLink.uri, 'customScript/Set-SqlCollation.ps1')]"
-          ]
-        },
-        "protectedSettings": {
-          "commandToExecute": "[concat('powershell -ExecutionPolicy Bypass -File Set-SqlCollation.ps1 -SqlCollation \"', parameters('globals').sqlCollation, '\"')]"
-        }
-      }
-    },
-
     {
       "condition": "[equals(parameters('machineSettings').appID, 'sql')]",
       "type": "Microsoft.SqlVirtualMachine/sqlVirtualMachines",
@@ -83,8 +57,7 @@
       "name": "[parameters('vmName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('vmName'), 'SqlIaasExtension')]",
-        "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('vmName'), 'SqlCollation')]"
+        "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('vmName'), 'SqlIaasExtension')]"
       ],
       "properties": {
         "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]",
