@@ -53,13 +53,14 @@ $instanceName = Wait-ForCondition -Condition {
 $serverKey = "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\$instanceName\MSSQLServer"
 Wait-ForCondition -Condition { Test-Path $serverKey } -Description "SQL Server configuration registry key at $serverKey"
 
-
 $serverConfig = Get-ItemProperty -Path $serverKey -ErrorAction Stop
 $currentCollation = $null
 
 try {
     $currentCollation = Get-ItemPropertyValue -Path $serverKey -Name 'Collation' -ErrorAction Stop
 } catch [System.Management.Automation.ItemNotFoundException] {
+    Write-Verbose "Collation registry value is not yet available; proceeding without it." -Verbose
+} catch [System.Management.Automation.PropertyNotFoundException] {
     Write-Verbose "Collation registry value is not yet available; proceeding without it." -Verbose
 } catch {
     throw
