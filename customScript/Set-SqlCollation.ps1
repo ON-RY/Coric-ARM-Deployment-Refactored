@@ -8,7 +8,7 @@ $ErrorActionPreference = 'Stop'
 
 # --- Logging to help CSE troubleshooting
 $logRoot = 'C:\WindowsAzure\Logs\CustomScript'
-$newLog  = Join-Path $logRoot ("Set-SqlCollation_{0:yyyyMMdd_HHmmss}.log" -f (Get-Date))
+$newLog  = $logRoot + '\Set-SqlCollation_{0:yyyyMMdd_HHmmss}.log' -f (Get-Date)
 New-Item -ItemType Directory -Path $logRoot -Force | Out-Null
 try { Start-Transcript -Path $newLog -Force -ErrorAction SilentlyContinue } catch {}
 
@@ -17,27 +17,18 @@ Write-Verbose "Requested SQL Server collation: $SqlCollation" -Verbose
 function Wait-ForCondition {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory = $true)]
-        [scriptblock]$Condition,
-
-        [Parameter(Mandatory = $true)]
-        [string]$Description,
-
+        [Parameter(Mandatory = $true)][scriptblock]$Condition,
+        [Parameter(Mandatory = $true)][string]$Description,
         [int]$TimeoutMinutes = 45,
         [int]$DelaySeconds = 15
     )
-
     $deadline = (Get-Date).AddMinutes($TimeoutMinutes)
     $result = $null
     while (-not ($result = & $Condition)) {
-        if ((Get-Date) -ge $deadline) {
-            throw "Timed out waiting for $Description after $TimeoutMinutes minutes."
-        }
-
+        if ((Get-Date) -ge $deadline) { throw "Timed out waiting for $Description after $TimeoutMinutes minutes." }
         Write-Host "Waiting for $Description..."
         Start-Sleep -Seconds $DelaySeconds
     }
-
     return $result
 }
 
@@ -68,57 +59,57 @@ try {
 catch {
     if ($_.FullyQualifiedErrorId -like '*PropertyNotFoundException*' -or $_.Exception.Message -match 'Property Collation does not exist') {
         Write-Verbose "Collation registry value is not yet available; proceeding without it." -Verbose
-    } else {
-        throw
-    }
+    } else { throw }
 }
 
 if ($currentCollation) {
     Write-Verbose "Current SQL Server collation: $currentCollation" -Verbose
     if ($currentCollation -eq $SqlCollation) {
         Write-Host "SQL Server is already using the $SqlCollation collation."
-        Stop-Transcript | Out-Null 2>$null
+        try { Stop-Transcript | Out-Null } catch {}
         exit 0
     }
 } elseif (-not $PSBoundParameters.ContainsKey('Verbose')) {
     Write-Host "Current SQL Server collation is not yet set in the registry; proceeding with rebuild."
 }
 
-# --- Normalize system drive root to ensure 'C:\' (not 'C:')
-$systemDriveRoot = ([System.IO.Path]::GetFullPath("$($env:SystemDrive)\")).TrimEnd('\') + '\'
+# --- Normalize system drive root to 'C:\'
+$sd = [string]$env:SystemDrive
+if (-not $sd.EndsWith('\')) { $sd = $sd + '\' }
+if ($sd -notmatch '^[A-Za-z]:\\$') { $sd = 'C:\' }   # belt & braces if env var is odd
 
-# --- Determine setup.exe location (avoid array-to-string pitfalls)
+Write-Host ("DEBUG: SystemDrive='{0}' (type={1})" -f $sd, $sd.GetType().FullName)
+
+# --- Determine setup.exe location without Join-Path anywhere
 $knownSetupFolders = @(
-    (Join-Path -Path $systemDriveRoot -ChildPath 'SQLServerFull'),
-    (Join-Path -Path $systemDriveRoot -ChildPath 'SQLServer2019Full'),
-    (Join-Path -Path $systemDriveRoot -ChildPath 'SQLServer2022Full')
+    $sd + 'SQLServerFull',
+    $sd + 'SQLServer2019Full',
+    $sd + 'SQLServer2022Full'
 )
 
-$existingSetupFolders = foreach ($kf in $knownSetupFolders) {
-    if (Test-Path -LiteralPath $kf) { $kf }
+# Filter safely
+$existingSetupFolders = @()
+foreach ($kf in $knownSetupFolders) {
+    if (Test-Path -LiteralPath $kf) { $existingSetupFolders += ,$kf }
 }
+Write-Host ("DEBUG: existingSetupFolders count={0}" -f $existingSetupFolders.Count)
 
 $setupPath = $null
 
 # Prefer known folders
 foreach ($folder in $existingSetupFolders) {
-    $candidate = Join-Path -Path $folder -ChildPath 'setup.exe'
-    if (Test-Path -LiteralPath $candidate) {
-        $setupPath = $candidate
-        break
-    }
+    $candidate = $folder + '\setup.exe'
+    Write-Host ("DEBUG: candidate='{0}'" -f $candidate)
+    if (Test-Path -LiteralPath $candidate) { $setupPath = $candidate; break }
 }
 
 # Fallback: search safely under the system drive for SQLServer* folders
 if (-not $setupPath) {
     try {
-        $roots = Get-ChildItem -LiteralPath $systemDriveRoot -Directory -Filter 'SQLServer*' -ErrorAction SilentlyContinue
+        $roots = Get-ChildItem -LiteralPath $sd -Directory -Filter 'SQLServer*' -ErrorAction SilentlyContinue
         foreach ($root in $roots) {
             $candidate = Get-ChildItem -LiteralPath $root.FullName -Filter 'setup.exe' -File -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-            if ($candidate) {
-                $setupPath = $candidate.FullName
-                break
-            }
+            if ($candidate) { $setupPath = $candidate.FullName; break }
         }
     } catch {
         Write-Verbose "Fallback search for setup.exe failed: $($_.Exception.Message)" -Verbose
@@ -127,7 +118,7 @@ if (-not $setupPath) {
 
 if (-not $setupPath) {
     Write-Error 'Unable to locate setup.exe for SQL Server. Cannot rebuild system databases to change the collation.'
-    Stop-Transcript | Out-Null 2>$null
+    try { Stop-Transcript | Out-Null } catch {}
     exit 1
 }
 
@@ -158,7 +149,6 @@ $proc = Start-Process -FilePath $setupPath -ArgumentList $arguments -PassThru -W
 # --- Check exit code and surface SQL setup logs for easier diagnosis
 if ($proc.ExitCode -ne 0) {
     Write-Error ("SQL Server setup returned exit code {0} while rebuilding the system databases." -f $proc.ExitCode)
-    # Common setup log locations by version (best-effort hints for CSE logs)
     $logHints = @(
         "$env:ProgramFiles\Microsoft SQL Server\150\Setup Bootstrap\Log\Summary.txt",
         "$env:ProgramFiles\Microsoft SQL Server\160\Setup Bootstrap\Log\Summary.txt",
@@ -170,7 +160,7 @@ if ($proc.ExitCode -ne 0) {
             break
         }
     }
-    Stop-Transcript | Out-Null 2>$null
+    try { Stop-Transcript | Out-Null } catch {}
     exit $proc.ExitCode
 }
 
