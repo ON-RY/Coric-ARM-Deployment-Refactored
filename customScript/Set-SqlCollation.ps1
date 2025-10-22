@@ -53,9 +53,17 @@ $instanceName = Wait-ForCondition -Condition {
 $serverKey = "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\$instanceName\MSSQLServer"
 Wait-ForCondition -Condition { Test-Path $serverKey } -Description "SQL Server configuration registry key at $serverKey"
 
+
 $serverConfig = Get-ItemProperty -Path $serverKey -ErrorAction Stop
-$collationProperty = $serverConfig.PSObject.Properties['Collation']
-$currentCollation = if ($collationProperty) { $collationProperty.Value } else { $null }
+$currentCollation = $null
+
+try {
+    $currentCollation = Get-ItemPropertyValue -Path $serverKey -Name 'Collation' -ErrorAction Stop
+} catch [System.Management.Automation.ItemNotFoundException] {
+    Write-Verbose "Collation registry value is not yet available; proceeding without it." -Verbose
+} catch {
+    throw
+}
 
 if ($currentCollation) {
     Write-Verbose "Current SQL Server collation: $currentCollation" -Verbose
@@ -63,8 +71,9 @@ if ($currentCollation) {
         Write-Host "SQL Server is already using the $SqlCollation collation."
         return
     }
-} else {
-    Write-Verbose "Current SQL Server collation is not yet set in the registry; proceeding with rebuild." -Verbose
+} elseif (-not $PSBoundParameters.ContainsKey('Verbose')) {
+    # If verbose logging is not explicitly enabled, mirror the previous message so deployments still show progress.
+    Write-Host "Current SQL Server collation is not yet set in the registry; proceeding with rebuild."
 }
 
 # Determine the SQL Server setup executable path
