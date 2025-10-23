@@ -397,13 +397,6 @@
                 "description": "Name of the SQL user to be created for use with TDE EKM on Key Vault"
             }
         },
-        "sqlCollation": {
-            "type": "string",
-            "defaultValue": "Latin1_General_CI_AS",
-            "metadata": {
-                "description": "Collation applied to SQL Server instances during deployment."
-            }
-        },
         "sicKey": {
             "defaultValue": "",
             "type": "securestring",
@@ -549,9 +542,6 @@
                 "diskInitialize": {
                     "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file DiskInitialize.ps1",
                     "scriptURL": "[uri(deployment().properties.templateLink.uri, 'customScript/DiskInitialize.ps1')]"
-                },
-                "setSqlCollation": {
-                    "scriptURL": "[uri(deployment().properties.templateLink.uri, 'customScript/Set-SqlCollation.ps1')]"
                 }
             },
             "dataDiskSizes": {
@@ -853,8 +843,7 @@
                 "sku": "[parameters('windowsOSVersion')]",
                 "version": "latest",
                 "size": "[parameters('windowsVMSize')]"
-            },
-            "sqlCollation": "[parameters('sqlCollation')]"
+            }
         },
         "octetsArr": "[split(parameters('vnetV2addressSpace'),'.')]",
         "paddedClientID": "[padLeft(parameters('clientID'),4,'0')]",
