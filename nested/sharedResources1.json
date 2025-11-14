@@ -26,6 +26,20 @@
                 "description": "One time key for Check Point Secure Internal Communication (certificate to connect Gateway to Management Server)"
             }
         },
+        "deployAdminStorage": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Controls whether the admin storage account deployment runs."
+            }
+        },
+        "deployDiagnosticsStorage": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Controls whether the diagnostics storage account deployment runs."
+            }
+        },
         "asrSuffix": {
             "type": "string",
             "defaultValue": "",
@@ -288,6 +302,7 @@
         {
             "name": "adminStorage",
             "type": "Microsoft.Resources/deployments",
+            "condition": "[parameters('deployAdminStorage')]",
             "apiVersion": "[parameters('globals').apiVersion.deployment]",
             "properties": {
                 "mode": "Incremental",
@@ -308,6 +323,7 @@
         {
             "name": "diagnosticsStorage",
             "type": "Microsoft.Resources/deployments",
+            "condition": "[parameters('deployDiagnosticsStorage')]",
             "apiVersion": "[parameters('globals').apiVersion.deployment]",
             "properties": {
                 "mode": "Incremental",

@@ -26,6 +26,20 @@
                 "description": "One time key for Check Point Secure Internal Communication (certificate to connect Gateway to Management Server)"
             }
         },
+        "deployAdminStorage": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Controls whether the admin storage account deployment runs (Phase 1 only)."
+            }
+        },
+        "deployDiagnosticsStorage": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Controls whether the diagnostics storage account deployment runs (Phase 1 only)."
+            }
+        },
         "asrSuffix": {
             "type": "string",
             "defaultValue": "",
