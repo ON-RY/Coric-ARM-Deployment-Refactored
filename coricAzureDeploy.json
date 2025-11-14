@@ -63,6 +63,20 @@
             },
             "type": "string"
         },
+        "deployAdminStorageAccount": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Set to false to skip creating the shared admin storage account when it already exists."
+            }
+        },
+        "deployDiagnosticsStorageAccount": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Set to false to skip creating the shared diagnostics storage account when it already exists."
+            }
+        },
         "windowsOSVersion": {
             "type": "string",
             "defaultValue": "2022-Datacenter",
@@ -948,6 +962,12 @@
                     "sicKey": {
                         "value": "[parameters('sicKey')]"
                     },
+                    "deployAdminStorage": {
+                        "value": "[parameters('deployAdminStorageAccount')]"
+                    },
+                    "deployDiagnosticsStorage": {
+                        "value": "[parameters('deployDiagnosticsStorageAccount')]"
+                    },
                     "asrSuffix": {
                         "value": ""
                     }
@@ -978,6 +998,12 @@
                     },
                     "sicKey": {
                         "value": "[parameters('sicKey')]"
+                    },
+                    "deployAdminStorage": {
+                        "value": "[parameters('deployAdminStorageAccount')]"
+                    },
+                    "deployDiagnosticsStorage": {
+                        "value": "[parameters('deployDiagnosticsStorageAccount')]"
                     },
                     "asrSuffix": {
                         "value": "[parameters('asrBuild')]"
