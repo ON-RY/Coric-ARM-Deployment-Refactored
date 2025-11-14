@@ -84,7 +84,7 @@
                 4
             ],
             "metadata": {
-                "description": "The implementation build phase. 1 = Network infrastructure, admin VMs, and AD domain setup; 2 = Full Network infrastructure (run after Checkpoint);  3 = Environment supplied in 'environmentName (Dev/UAT/Prod);  4 = Check Point"
+                "description": "The implementation build phase. 1 = Network infrastructure, admin VMs, and AD domain setup; 2 = Full Network infrastructure (run after Checkpoint);  3 = Environment supplied in 'environmentName (Dev/UAT/Sys/Prod);  4 = Check Point"
             }
         },
         "asrBuild": {
@@ -124,7 +124,7 @@
         },
         "environmentName": {
             "metadata": {
-                "Description": "Name of the environment being built. Will usually be: 'Admin', 'Development', 'UAT', or 'Production'."
+                "Description": "Name of the environment being built. Will usually be: 'Admin', 'Development', 'UAT', 'Sys', or 'Production'."
             },
             "defaultValue": "Admin",
             "type": "string"
@@ -503,6 +503,7 @@
         "environmentShortNameDevelopment": "dev",
         "environmentShortNameProduction": "prod",
         "environmentShortNameUAT": "uat",
+        "environmentShortNameSys": "sys",
         "environmentShortNameWeb": "web",
         "extraEnv1ShortName": "[toLower(parameters('extraEnv1ShortName'))]",
         "extraEnv2ShortName": "[toLower(parameters('extraEnv2ShortName'))]",
@@ -701,6 +702,26 @@
                     "name": "[concat('sn', variables('vnetV2name'), '-uat-database')]",
                     "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),2),'.192/26')]"
                 },
+                "subnetsysdesktop": {
+                    "id": 19,
+                    "name": "[concat('sn', variables('vnetV2name'), '-sys-desktop')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),2),'.0/26')]"
+                },
+                "subnetsysweb": {
+                    "id": 20,
+                    "name": "[concat('sn', variables('vnetV2name'), '-sys-web')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),2),'.64/26')]"
+                },
+                "subnetsysapplication": {
+                    "id": 21,
+                    "name": "[concat('sn', variables('vnetV2name'), '-sys-application')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),2),'.128/26')]"
+                },
+                "subnetsysdatabase": {
+                    "id": 22,
+                    "name": "[concat('sn', variables('vnetV2name'), '-sys-database')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),2),'.192/26')]"
+                },
                 "subnetdevdesktop": {
                     "id": 23,
                     "name": "[concat('sn', variables('vnetV2name'), '-dev-desktop')]",
@@ -729,6 +750,11 @@
                 "subnetuatdmz": {
                     "id": 28,
                     "name": "[concat('sn', variables('vnetV2name'), '-uat-dmz')]",
+                    "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),4),'.64/26')]"
+                },
+                "subnetsysdmz": {
+                    "id": 28,
+                    "name": "[concat('sn', variables('vnetV2name'), '-sys-dmz')]",
                     "prefix": "[concat(variables('octetsArr')[0],'.',variables('octetsArr')[1],'.',add(int(variables('octetsArr')[2]),4),'.64/26')]"
                 },
                 "subnetdevdmz": {

@@ -4,7 +4,7 @@
 [![Visualize the template](http://armviz.io/visualizebutton.png)](http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2FAndyHerb%2FAzure-Resource-Group%2Fmaster%2FCoric-ARM-Deployment%2FcoricAzureDeploy.json)
 
 This template deploys a Coric environment into Azure.
-It creates shared resources of storage accounts, virtual networks, network security groups, and administrative virtual machines before creating one environment (Prod, UAT, Dev, etc.) with the provided number of resource types.
+It creates shared resources of storage accounts, virtual networks, network security groups, and administrative virtual machines before creating one environment (Prod, UAT, Sys, Dev, etc.) with the provided number of resource types.
 
 ## Deployment prerequisites
 

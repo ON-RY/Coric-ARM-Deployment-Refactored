@@ -414,6 +414,142 @@
         },
         {
             "apiVersion": "[parameters('globals').apiVersion.routeTables]",
+            "name": "[concat('rt', variables('vnetV2originalName'), '-sys-desktop-local')]",
+            "type": "Microsoft.Network/routeTables",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "disableBgpRoutePropagation": false,
+                "routes": [
+                    {
+                        "name": "[parameters('globals').networkSettings.subnetsysdesktop.name]",
+                        "properties": {
+                            "addressPrefix": "[parameters('globals').networkSettings.subnetsysdesktop.prefix]",
+                            "nextHopType": "VnetLocal"
+                        }
+                    },
+                    {
+                        "name": "default-to-checkpoint",
+                        "properties": {
+                            "addressPrefix": "0.0.0.0/0",
+                            "nextHopType": "VirtualAppliance",
+                            "nextHopIpAddress": "[parameters('globals').networkSettings.gatewayInternalIPAddress]"
+                        }
+                    },
+                    {
+                        "name": "vnet-to-checkpoint",
+                        "properties": {
+                            "addressPrefix": "[parameters('globals').networkSettings.vnetV2addressSpace]",
+                            "nextHopType": "VirtualAppliance",
+                            "nextHopIpAddress": "[parameters('globals').networkSettings.gatewayInternalIPAddress]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "[parameters('globals').apiVersion.routeTables]",
+            "name": "[concat('rt', variables('vnetV2originalName'), '-sys-web-local')]",
+            "type": "Microsoft.Network/routeTables",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "disableBgpRoutePropagation": false,
+                "routes": [
+                    {
+                        "name": "[parameters('globals').networkSettings.subnetsysweb.name]",
+                        "properties": {
+                            "addressPrefix": "[parameters('globals').networkSettings.subnetsysweb.prefix]",
+                            "nextHopType": "VnetLocal"
+                        }
+                    },
+                    {
+                        "name": "default-to-checkpoint",
+                        "properties": {
+                            "addressPrefix": "0.0.0.0/0",
+                            "nextHopType": "VirtualAppliance",
+                            "nextHopIpAddress": "[parameters('globals').networkSettings.gatewayInternalIPAddress]"
+                        }
+                    },
+                    {
+                        "name": "vnet-to-checkpoint",
+                        "properties": {
+                            "addressPrefix": "[parameters('globals').networkSettings.vnetV2addressSpace]",
+                            "nextHopType": "VirtualAppliance",
+                            "nextHopIpAddress": "[parameters('globals').networkSettings.gatewayInternalIPAddress]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "[parameters('globals').apiVersion.routeTables]",
+            "name": "[concat('rt', variables('vnetV2originalName'), '-sys-application-local')]",
+            "type": "Microsoft.Network/routeTables",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "disableBgpRoutePropagation": false,
+                "routes": [
+                    {
+                        "name": "[parameters('globals').networkSettings.subnetsysapplication.name]",
+                        "properties": {
+                            "addressPrefix": "[parameters('globals').networkSettings.subnetsysapplication.prefix]",
+                            "nextHopType": "VnetLocal"
+                        }
+                    },
+                    {
+                        "name": "default-to-checkpoint",
+                        "properties": {
+                            "addressPrefix": "0.0.0.0/0",
+                            "nextHopType": "VirtualAppliance",
+                            "nextHopIpAddress": "[parameters('globals').networkSettings.gatewayInternalIPAddress]"
+                        }
+                    },
+                    {
+                        "name": "vnet-to-checkpoint",
+                        "properties": {
+                            "addressPrefix": "[parameters('globals').networkSettings.vnetV2addressSpace]",
+                            "nextHopType": "VirtualAppliance",
+                            "nextHopIpAddress": "[parameters('globals').networkSettings.gatewayInternalIPAddress]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "[parameters('globals').apiVersion.routeTables]",
+            "name": "[concat('rt', variables('vnetV2originalName'), '-sys-database-local')]",
+            "type": "Microsoft.Network/routeTables",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "disableBgpRoutePropagation": false,
+                "routes": [
+                    {
+                        "name": "[parameters('globals').networkSettings.subnetsysdatabase.name]",
+                        "properties": {
+                            "addressPrefix": "[parameters('globals').networkSettings.subnetsysdatabase.prefix]",
+                            "nextHopType": "VnetLocal"
+                        }
+                    },
+                    {
+                        "name": "default-to-checkpoint",
+                        "properties": {
+                            "addressPrefix": "0.0.0.0/0",
+                            "nextHopType": "VirtualAppliance",
+                            "nextHopIpAddress": "[parameters('globals').networkSettings.gatewayInternalIPAddress]"
+                        }
+                    },
+                    {
+                        "name": "vnet-to-checkpoint",
+                        "properties": {
+                            "addressPrefix": "[parameters('globals').networkSettings.vnetV2addressSpace]",
+                            "nextHopType": "VirtualAppliance",
+                            "nextHopIpAddress": "[parameters('globals').networkSettings.gatewayInternalIPAddress]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "[parameters('globals').apiVersion.routeTables]",
             "name": "[concat('rt', variables('vnetV2originalName'), '-dev-desktop-local')]",
             "type": "Microsoft.Network/routeTables",
             "location": "[resourceGroup().location]",
@@ -595,6 +731,41 @@
                         "name": "[parameters('globals').networkSettings.subnetuatdmz.name]",
                         "properties": {
                             "addressPrefix": "[parameters('globals').networkSettings.subnetuatdmz.prefix]",
+                            "nextHopType": "VirtualAppliance",
+                            "nextHopIpAddress": "[parameters('globals').networkSettings.gatewayInternalIPAddress]"
+                        }
+                    },
+                    {
+                        "name": "default-to-checkpoint",
+                        "properties": {
+                            "addressPrefix": "0.0.0.0/0",
+                            "nextHopType": "VirtualAppliance",
+                            "nextHopIpAddress": "[parameters('globals').networkSettings.gatewayInternalIPAddress]"
+                        }
+                    },
+                    {
+                        "name": "vnet-to-checkpoint",
+                        "properties": {
+                            "addressPrefix": "[parameters('globals').networkSettings.vnetV2addressSpace]",
+                            "nextHopType": "VirtualAppliance",
+                            "nextHopIpAddress": "[parameters('globals').networkSettings.gatewayInternalIPAddress]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "[parameters('globals').apiVersion.routeTables]",
+            "name": "[concat('rt', variables('vnetV2originalName'), '-sys-dmz-local')]",
+            "type": "Microsoft.Network/routeTables",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "disableBgpRoutePropagation": false,
+                "routes": [
+                    {
+                        "name": "[parameters('globals').networkSettings.subnetsysdmz.name]",
+                        "properties": {
+                            "addressPrefix": "[parameters('globals').networkSettings.subnetsysdmz.prefix]",
                             "nextHopType": "VirtualAppliance",
                             "nextHopIpAddress": "[parameters('globals').networkSettings.gatewayInternalIPAddress]"
                         }
@@ -1175,6 +1346,122 @@
                         }
                     },
                     {
+                        "name": "[parameters('globals').networkSettings.subnetsysdesktop.name]",
+                        "properties": {
+                            "addressPrefix": "[parameters('globals').networkSettings.subnetsysdesktop.prefix]",
+                            "routeTable": {
+                                "id": "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-sys-desktop-local'))]"
+                            },
+                            "serviceEndpoints": [
+                                {
+                                    "service": "Microsoft.KeyVault",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                },
+                                {
+                                    "service": "Microsoft.Storage",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                },
+                                {
+                                    "service": "Microsoft.AzureActiveDirectory",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "[parameters('globals').networkSettings.subnetsysweb.name]",
+                        "properties": {
+                            "addressPrefix": "[parameters('globals').networkSettings.subnetsysweb.prefix]",
+                            "routeTable": {
+                                "id": "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-sys-web-local'))]"
+                            },
+                            "serviceEndpoints": [
+                                {
+                                    "service": "Microsoft.KeyVault",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                },
+                                {
+                                    "service": "Microsoft.Storage",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                },
+                                {
+                                    "service": "Microsoft.AzureActiveDirectory",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "[parameters('globals').networkSettings.subnetsysapplication.name]",
+                        "properties": {
+                            "addressPrefix": "[parameters('globals').networkSettings.subnetsysapplication.prefix]",
+                            "routeTable": {
+                                "id": "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-sys-application-local'))]"
+                            },
+                            "serviceEndpoints": [
+                                {
+                                    "service": "Microsoft.KeyVault",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                },
+                                {
+                                    "service": "Microsoft.Storage",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                },
+                                {
+                                    "service": "Microsoft.AzureActiveDirectory",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "[parameters('globals').networkSettings.subnetsysdatabase.name]",
+                        "properties": {
+                            "addressPrefix": "[parameters('globals').networkSettings.subnetsysdatabase.prefix]",
+                            "routeTable": {
+                                "id": "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-sys-database-local'))]"
+                            },
+                            "serviceEndpoints": [
+                                {
+                                    "service": "Microsoft.KeyVault",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                },
+                                {
+                                    "service": "Microsoft.Storage",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                },
+                                {
+                                    "service": "Microsoft.AzureActiveDirectory",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
                         "name": "[parameters('globals').networkSettings.subnetdevdesktop.name]",
                         "properties": {
                             "addressPrefix": "[parameters('globals').networkSettings.subnetdevdesktop.prefix]",
@@ -1320,11 +1607,11 @@
                         }
                     },
                     {
-                        "name": "[parameters('globals').networkSettings.subnetuatdmz.name]",
+                        "name": "[parameters('globals').networkSettings.subnetsysdmz.name]",
                         "properties": {
-                            "addressPrefix": "[parameters('globals').networkSettings.subnetuatdmz.prefix]",
+                            "addressPrefix": "[parameters('globals').networkSettings.subnetsysdmz.prefix]",
                             "routeTable": {
-                                "id": "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-uat-dmz-local'))]"
+                                "id": "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-sys-dmz-local'))]"
                             },
                             "serviceEndpoints": [
                                 {
@@ -1536,12 +1823,17 @@
                 "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-uat-web-local'))]",
                 "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-uat-application-local'))]",
                 "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-uat-database-local'))]",
+                "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-sys-desktop-local'))]",
+                "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-sys-web-local'))]",
+                "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-sys-application-local'))]",
+                "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-sys-database-local'))]",
                 "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-dev-desktop-local'))]",
                 "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-dev-web-local'))]",
                 "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-dev-application-local'))]",
                 "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-dev-database-local'))]",
                 "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-prod-dmz-local'))]",
                 "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-uat-dmz-local'))]",
+                "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-sys-dmz-local'))]",
                 "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-dev-dmz-local'))]",
                 "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-', parameters('globals').networkSettings.extraEnv1ShortName, '-desktop-local'))]",
                 "[resourceId('Microsoft.Network/routeTables', concat('rt', variables('vnetV2originalName'), '-', parameters('globals').networkSettings.extraEnv1ShortName, '-web-local'))]",

@@ -88,6 +88,16 @@
                 "backendPort": 7443
             },
             {
+                "name": "[concat(parameters('globals').baseName,'-s-c1')]",
+                "frontendPort": 80,
+                "backendPort": 7080
+            },
+            {
+                "name": "[concat(parameters('globals').baseName,'-s-c1-443')]",
+                "frontendPort": 443,
+                "backendPort": 7443
+            },
+            {
                 "name": "[concat(parameters('globals').baseName,'-p-c1')]",
                 "frontendPort": 80,
                 "backendPort": 9080

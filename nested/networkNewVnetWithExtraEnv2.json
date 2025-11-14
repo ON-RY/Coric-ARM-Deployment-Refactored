@@ -347,6 +347,110 @@
                         }
                     },
                     {
+                        "name": "[parameters('globals').networkSettings.subnetsysdesktop.name]",
+                        "properties": {
+                            "addressPrefix": "[parameters('globals').networkSettings.subnetsysdesktop.prefix]",
+                            "serviceEndpoints": [
+                                {
+                                    "service": "Microsoft.KeyVault",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                },
+                                {
+                                    "service": "Microsoft.Storage",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                },
+                                {
+                                    "service": "Microsoft.AzureActiveDirectory",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "[parameters('globals').networkSettings.subnetsysweb.name]",
+                        "properties": {
+                            "addressPrefix": "[parameters('globals').networkSettings.subnetsysweb.prefix]",
+                            "serviceEndpoints": [
+                                {
+                                    "service": "Microsoft.KeyVault",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                },
+                                {
+                                    "service": "Microsoft.Storage",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                },
+                                {
+                                    "service": "Microsoft.AzureActiveDirectory",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "[parameters('globals').networkSettings.subnetsysapplication.name]",
+                        "properties": {
+                            "addressPrefix": "[parameters('globals').networkSettings.subnetsysapplication.prefix]",
+                            "serviceEndpoints": [
+                                {
+                                    "service": "Microsoft.KeyVault",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                },
+                                {
+                                    "service": "Microsoft.Storage",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                },
+                                {
+                                    "service": "Microsoft.AzureActiveDirectory",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "[parameters('globals').networkSettings.subnetsysdatabase.name]",
+                        "properties": {
+                            "addressPrefix": "[parameters('globals').networkSettings.subnetsysdatabase.prefix]",
+                            "serviceEndpoints": [
+                                {
+                                    "service": "Microsoft.KeyVault",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                },
+                                {
+                                    "service": "Microsoft.Storage",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                },
+                                {
+                                    "service": "Microsoft.AzureActiveDirectory",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
                         "name": "[parameters('globals').networkSettings.subnetdevdesktop.name]",
                         "properties": {
                             "addressPrefix": "[parameters('globals').networkSettings.subnetdevdesktop.prefix]",
@@ -480,6 +584,32 @@
                         "name": "[parameters('globals').networkSettings.subnetuatdmz.name]",
                         "properties": {
                             "addressPrefix": "[parameters('globals').networkSettings.subnetuatdmz.prefix]",
+                            "serviceEndpoints": [
+                                {
+                                    "service": "Microsoft.KeyVault",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                },
+                                {
+                                    "service": "Microsoft.Storage",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                },
+                                {
+                                    "service": "Microsoft.AzureActiveDirectory",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "[parameters('globals').networkSettings.subnetsysdmz.name]",
+                        "properties": {
+                            "addressPrefix": "[parameters('globals').networkSettings.subnetsysdmz.prefix]",
                             "serviceEndpoints": [
                                 {
                                     "service": "Microsoft.KeyVault",

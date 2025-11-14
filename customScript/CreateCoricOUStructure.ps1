@@ -64,7 +64,7 @@ function New-OU
    Creates all required Coric OUs for the given environment
 .DESCRIPTION
    Creates all Coric OUs required for an Azure-hosted system.
-   Note: Only one environment is created at a time, so this should be called for each environment created (i.e. Prod, UAT, Dev)
+   Note: Only one environment is created at a time, so this should be called for each environment created (i.e. Prod, UAT, Sys, Dev)
 .EXAMPLE
    Set-CoricOUStructure -DomainLDAPName 'DC=Coric,DC=Hosted'
 
